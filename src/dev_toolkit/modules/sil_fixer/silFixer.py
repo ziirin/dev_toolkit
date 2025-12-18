@@ -67,9 +67,24 @@ SIL_CATEGORY_STRINGS        = '[Strings]'
 
 # ========================================================================
 
-def read_sil(sil_path: str, lang_list: list[str]) -> tuple[dict, dict]:
+def read_sil(sil_path: str, lang_list: list[str] | None = None) -> tuple[dict, dict]:
     sil_data = {}
     errors = {}
+    
+    if not lang_list:
+        lang_list = [
+            LANG_ES,
+            LANG_EN,
+            LANG_IT,
+            LANG_ZHt,
+            LANG_ZHs,
+            LANG_TR,
+            LANG_FR,
+            LANG_RU,
+            LANG_PT,
+            LANG_EL,
+            LANG_DE
+        ]
     
     try:
         with open(sil_path, 'r', encoding='utf-8') as sil_file:

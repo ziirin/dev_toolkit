@@ -1,6 +1,7 @@
 from .handlers import *
-from .menu import print_menu
+from .menu import (resolve_path, BASE_PATH)
 
 __all__ = [
-    'print_menu'
+    'BASE_PATH',
+    'resolve_path'
 ]

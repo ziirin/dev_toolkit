@@ -1,9 +1,22 @@
-from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog)
+from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog, button_dialog)
 from ..misc.cli_style import ONE_ATOM_THEME
 from ..config.app_config import APP_CONFIG
 from .routing import (DevTool, MENU_ROUTING)
+from ..misc.util import get_args_from_path
 
 # ========================================================================
+
+BASE_PATH = '/devtoolkit'
+
+# ========================================================================
+
+def _get_title_from_path(menu_path: str) -> str:
+    title_array = menu_path.split('/')
+    title_array.pop(0)
+    if len(title_array) > 0 and title_array[0] == 'devtoolkit':
+        title_array[0] = 'DevToolkit'
+    title = ' → '.join(title_array)
+    return title
 
 def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
     allowed_tools = APP_CONFIG.get('allowed_tools', None)
@@ -13,6 +26,16 @@ def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
     else:
         filtered_opts = options.copy()
     return filtered_opts
+
+def _print_simple_msg(title:str, text: str) -> str:
+    result = button_dialog(
+        title=title,
+        text=text,
+        buttons=[('Ok', BASE_PATH)],
+        style=ONE_ATOM_THEME
+    ).run()
+    
+    return result
 
 def _print_radiolist_menu(title: str, text: str,
                           options: list[tuple[str, str]]) -> str:
@@ -31,49 +54,95 @@ def _print_radiolist_menu(title: str, text: str,
 
 # ========================================================================
 
-@DevTool('/devtoolkit')
-def _print_main_menu() -> str | None:
+@DevTool(BASE_PATH + '/success')
+def _print_success_menu(menu_path: str) -> None:
+    args = get_args_from_path(menu_path)
+    result = _print_simple_msg(
+        title='DevToolkit → Success',
+        text=args.get('msg', 'Success.')
+    )
+    return result
+
+@DevTool(BASE_PATH + '/err')
+def _print_err_menu(menu_path: str) -> str | None:
+    args = get_args_from_path(menu_path)
+    result = _print_simple_msg(
+        title='DevToolkit → Error',
+        text=args.get('msg', 'Unexpected error.')
+    )
+    return (None
+            if APP_CONFIG.get('close_after_err', False)
+            else result)
+
+@DevTool(BASE_PATH)
+def _print_main_menu(menu_path: str) -> str | None:
     options = [
-        ('/devtoolkit/tsilang', 'Tsilang options...'),
-        ('/devtoolkit/git', 'Git options...'),
-        ('/devtoolkit~kill_rad', 'Kill RAD Studio subprocesses and clean projects.'),
-        ('/devtoolkit~icons_web', 'Generate a icons web to search ICad icons.'),
-        ('/devtoolkit/settings', 'Settings...')
+        (BASE_PATH + '/tsilang', 'Tsilang tools...'),
+        (BASE_PATH + '/git', 'Git tools...'),
+        (BASE_PATH + '/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.'),
+        (BASE_PATH + '/:icons_web', 'Generate a icons web to search ICad icons.'),
+        (BASE_PATH + '/settings', 'Settings...')
     ]
     
     return _print_radiolist_menu(
-        'DevToolkit',
+        _get_title_from_path(menu_path),
         'Choose a tool:',
         options
     )
 
-@DevTool('/devtoolkit/tsilang')    
-def _print_tsilang_menu() -> str:
+@DevTool(BASE_PATH + '/tsilang')    
+def _print_tsilang_menu(menu_path: str) -> str:
     options = [
-        ('/devtoolkit/tsilang~sil2csv', 'Convert SIL to CSV.'),
-        ('/devtoolkit/tsilang~csv2sil', 'Convert CSV to SIL.')
+        (BASE_PATH + '/tsilang/:sil2csv', 'Convert SIL to CSV.'),
+        (BASE_PATH + '/tsilang/:csv2sil', 'Convert CSV to SIL.')
     ]
     
     return _print_radiolist_menu(
-        'DevToolkit → Tsilang',
+        # 'DevToolkit → Tsilang',
+        _get_title_from_path(menu_path),
         'Choose a tool:',
         options
     )
 
 # ========================================================================
 
-def print_menu(menu_path: str = '/devtoolkit') -> str | None:
+def resolve_path(menu_path: str = BASE_PATH) -> str | None:
     if menu_path.endswith('/'):
         menu_path = menu_path[:-1]
 
-    if menu_path in MENU_ROUTING.keys():
-        result = MENU_ROUTING[menu_path]()
-        menu_path_splitted = menu_path.split('/')
-        if not result and len(menu_path_splitted) > 1:
-            result = '/'.join(menu_path_splitted[:-1])
-        if result and '~' not in result:
-            print_menu(result)
+    path_to_check = menu_path.split('?')[0]
+    if path_to_check in MENU_ROUTING.keys():
+        result = MENU_ROUTING[path_to_check](menu_path)
+        
+        # If result!=None we need to resolve the new path
+        if result:
+            # If result it's equals to BASE_PATH, we need to check
+            # close_after_success and close_after_err values to know what to do.
+            # This avoids infinite pile of calls
+            if result == BASE_PATH:
+                default_result = BASE_PATH
+                is_success_path = menu_path.startswith(BASE_PATH + '/success')
+                is_err_path = menu_path.startswith(BASE_PATH + '/err')
+                
+                if is_success_path and APP_CONFIG.get('close_after_success', False):
+                    default_result = None
+                if is_err_path and APP_CONFIG.get('close_after_err', False):
+                    default_result = None
+                    
+                return default_result
+            
+            # If result it's not base path, we resolve the path
+            else:
+                return resolve_path(result)
+            
+        # If result==None means 'Back' or 'Exit' button has been pressed.
+        # We need to find out whichone
+        else:
+            splitted_path = (path_to_check.split('/'))
+            back_path = '/'.join(splitted_path[:-1])
+            return None if len(splitted_path[:-1]) == 1 else back_path
 
     else:
         message_dialog('Error', f'Path "{menu_path}" not found.',
                        style=ONE_ATOM_THEME).run()
+        return None

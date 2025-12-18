@@ -15,13 +15,12 @@ if __name__ == '__main__':
     
     parser.add_argument('--initial-path',
                         dest='init_path',
-                        default='/devtoolkit')
+                        default=menu.BASE_PATH)
     
     args = parser.parse_args()
     
     # --
-    
     # Main loop
-    result = 'N/A'
-    while result:
-        result = menu.print_menu(args.init_path)   
+    next_path = args.init_path if args.init_path else menu.BASE_PATH
+    while next_path:
+        next_path = menu.resolve_path(next_path)
