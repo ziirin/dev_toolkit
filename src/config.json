@@ -1,0 +1,11 @@
+{
+    "close_after_success": true,
+    "close_after_err": false,
+    "allowed_tools": [
+        "/devtoolkit",
+        
+        "/devtoolkit/tsilang",
+        "/devtoolkit/tsilang/:sil2csv",
+        "/devtoolkit/tsilang/:csv2sil"
+    ]
+}

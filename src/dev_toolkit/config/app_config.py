@@ -1,3 +1,8 @@
+# Defines if JSON file configuration has been already read
+_IS_CONFIG_INITIALIZED = False
+
+# This is the default configuration
+# This configuration can be changed using config.json
 APP_CONFIG = {
     'close_after_success': True,
     'close_after_err': False,
