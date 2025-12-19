@@ -87,7 +87,7 @@ def read_sil(sil_path: str, lang_list: list[str] | None = None) -> tuple[dict, d
         ]
     
     try:
-        with open(sil_path, 'r', encoding='utf-8') as sil_file:
+        with open(sil_path, 'r', encoding='utf-8-sig') as sil_file:
             lines = sil_file.readlines()
             
             cur_category = ''
@@ -227,7 +227,7 @@ def read_csv(csv_path: str) -> tuple[dict, dict]:
         raw_data = []
         csv_data = {}
         errors = {}
-        with open(csv_path, 'r', encoding='utf-8') as csv_file:
+        with open(csv_path, 'r', encoding='utf-8-sig') as csv_file:
             reader = csv.DictReader(csv_file, delimiter=CSV_DELIMITER)
             raw_data = [row for row in reader]
             

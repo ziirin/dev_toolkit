@@ -1,5 +1,5 @@
 APP_CONFIG = {
-    'close_after_success': False,
+    'close_after_success': True,
     'close_after_err': False,
     'allowed_tools': [
         # Entrypoint

@@ -26,4 +26,17 @@ def _handle_sil2csv(menu_path: str) -> str:
 
 @DevTool(BASE_PATH + '/tsilang/:csv2sil')
 def _handle_csv2sil(menu_path: str) -> str:
-    return ''
+    args = get_args_from_path(menu_path)
+    result = BASE_PATH
+    
+    input_path = args.get('in', '')
+    output_path = args.get('out', '')
+    if os.path.isfile(input_path):
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        csv_data = read_csv(input_path)[0]
+        write_sil(output_path, csv_data)
+        result += f'/success?msg=File succesfully converted ({output_path}).'
+    else:
+        result += f'/err?msg=Following file doesnt exists: {input_path}.'
+
+    return result
