@@ -1,4 +1,4 @@
-from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog, button_dialog, progress_dialog)
+from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog, button_dialog)
 from ..misc.cli_style import ONE_ATOM_THEME
 from ..config.app_config import APP_CONFIG
 from .routing import (DevTool, MENU_ROUTING, BASE_PATH)
@@ -74,10 +74,8 @@ def _print_err_menu(menu_path: str) -> str | None:
 def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
-        (BASE_PATH + '/git', 'Git tools...'),
         (BASE_PATH + '/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.'),
-        (BASE_PATH + '/:icons_web', 'Generate a icons web to search ICad icons.'),
-        (BASE_PATH + '/settings', 'Settings...')
+        (BASE_PATH + '/:week_report', 'Launch week report editor.'),
     ]
     
     return _print_radiolist_menu(
@@ -90,7 +88,8 @@ def _print_main_menu(menu_path: str) -> str | None:
 def _print_tsilang_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/tsilang/:sil2csv', 'Convert SIL to CSV.'),
-        (BASE_PATH + '/tsilang/:csv2sil', 'Convert CSV to SIL.')
+        (BASE_PATH + '/tsilang/:csv2sil', 'Convert CSV to SIL.'),
+        (BASE_PATH + '/tsilang/:clear', 'Clear DFM content.'),
     ]
     
     return _print_radiolist_menu(

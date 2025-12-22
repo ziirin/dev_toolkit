@@ -1,12 +1,16 @@
 import os
 import subprocess
+from datetime import (datetime, timedelta)
+from prompt_toolkit import prompt
 from .routing import DevTool
-from ..misc import get_args_from_path
+from .validators import FirstDayOfWeekValidator
+from ..misc import (get_args_from_path, ONE_ATOM_THEME)
 from ..cli_menu.menu import BASE_PATH
-from ..modules.sil_fixer.silFixer import (read_sil,
-                                          write_sil,
-                                          read_csv,
-                                          write_csv)
+from ..modules.tsilang.clear_translations import remove_translation_data
+from ..modules.tsilang.silFixer import (read_sil,
+                                        write_sil,
+                                        read_csv,
+                                        write_csv)
 
 # ========================================================================
 
@@ -35,13 +39,33 @@ def _handle_csv2sil(menu_path: str) -> str:
     input_path = args.get('in', '')
     output_path = args.get('out', '')
     if os.path.isfile(input_path):
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        csv_data = read_csv(input_path)[0]
-        write_sil(output_path, csv_data)
-        result += f'/success?msg=File succesfully converted ({output_path}).'
+        try:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            csv_data = read_csv(input_path)[0]
+            write_sil(output_path, csv_data)
+            result += f'/success?msg=File succesfully converted ({output_path}).'
+        except Exception as e:
+            result += f'/err?{e}'
     else:
         result += f'/err?msg=Following file doesnt exists: {input_path}.'
 
+    return result
+
+@DevTool('/tsilang/:clear')
+def _handle_clear(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    result = BASE_PATH
+    
+    path = args.get('path', '')
+    if os.path.isdir(path):
+        try:
+            remove_translation_data(path)
+            result += '/success?msg=Translations successfully deleted.'
+        except Exception as e:
+            result += f'/err?{e}'
+    else:
+        result += f'/err?msg=Following directory doesnt exists: {path}.'
+        
     return result
 
 # ========================================================================
@@ -65,3 +89,25 @@ def _handle_kill_rad(menu_path: str) -> str:
             result += f'/err?msg=An error occurred.'
     else:
         result += f'/err?msg=Script "{KILL_RAD_PATH}" not found.'
+        
+# ========================================================================
+
+@DevTool('/:week_report')
+def _handle_week_report(menu_path: str) -> str:
+    data = {
+        'cur_week_begin': '',
+        'next_week_begin': '',
+        'cur_week_projects': [{}],
+        'next_week_projects': [{}],
+        'variance_projects': [{}]
+    }
+    
+    # now = datetime.now()
+    now = datetime(2025, 4, 19)
+    curr_monday = now - timedelta(days=now.weekday())
+    next_monday = curr_monday + timedelta(days=7)
+    data['cur_week_begin'] = prompt('First day of current week: ',
+                                    validator=FirstDayOfWeekValidator(),
+                                    validate_while_typing=True,
+                                    default=next_monday.strftime('%d/%m'),
+                                    style=ONE_ATOM_THEME)

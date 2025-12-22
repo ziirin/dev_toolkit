@@ -9,26 +9,18 @@ CONFIG_FILE = './src/config.json'
 APP_CONFIG = {
     'close_after_success': True,
     'close_after_err': False,
+    'modules': {
+        'global': {
+            'main_src_folder': 'c:/fuentes/nucleo'
+        }
+    },
     'allowed_tools': [
-        # Entrypoint
         '/devtoolkit',
-        
-        # devtoolkit > tsilang
         '/devtoolkit/tsilang',
         '/devtoolkit/tsilang/:sil2csv',
         '/devtoolkit/tsilang/:csv2sil',
-        
-        # devtoolkit > git
-        # '/devtoolkit/git',
-        
-        # devtoolkit > :kill_rad
-        # '/devtoolkit/:kill_rad',
-        
-        # devtoolkit > :icons_web
-        # '/devtoolkit/:icons_web',
-        
-        # devtoolkit > settings
-        # '/devtoolkit/settings'
+        '/devtoolkit/:kill_rad',
+        '/devtoolkit/:week_report'
     ]
 }
 
