@@ -1,5 +1,6 @@
 import argparse
 from .dev_toolkit.cli_menu import menu
+from .dev_toolkit.config.app_config import load_config
 
 # Import to load MENU_ROUTING
 from .dev_toolkit.modules import *
@@ -18,6 +19,7 @@ if __name__ == '__main__':
                         default=menu.BASE_PATH)
     
     args = parser.parse_args()
+    load_config()
     
     # --
     # Main loop

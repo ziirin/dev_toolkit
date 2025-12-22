@@ -1,4 +1,4 @@
-from .handlers import *
+from .handlers import * # Loads @DevTool decorator
 from .menu import (resolve_path, BASE_PATH)
 
 __all__ = [

@@ -1,5 +1,8 @@
-# Defines if JSON file configuration has been already read
-_IS_CONFIG_INITIALIZED = False
+import os
+import json
+
+# Path to config.json
+CONFIG_FILE = './src/config.json'
 
 # This is the default configuration
 # This configuration can be changed using config.json
@@ -28,3 +31,9 @@ APP_CONFIG = {
         # '/devtoolkit/settings'
     ]
 }
+
+def load_config() -> None:
+    global APP_CONFIG
+    if os.path.isfile(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as config_file:
+            APP_CONFIG |= json.load(config_file)

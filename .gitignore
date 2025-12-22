@@ -1,4 +1,4 @@
 /.vscode
-/data
 /config
 *pycache*
+/src/dev_toolkit/config.json

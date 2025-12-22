@@ -1,12 +1,8 @@
-from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog, button_dialog)
+from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog, button_dialog, progress_dialog)
 from ..misc.cli_style import ONE_ATOM_THEME
 from ..config.app_config import APP_CONFIG
-from .routing import (DevTool, MENU_ROUTING)
+from .routing import (DevTool, MENU_ROUTING, BASE_PATH)
 from ..misc.util import get_args_from_path
-
-# ========================================================================
-
-BASE_PATH = '/devtoolkit'
 
 # ========================================================================
 
@@ -54,7 +50,7 @@ def _print_radiolist_menu(title: str, text: str,
 
 # ========================================================================
 
-@DevTool(BASE_PATH + '/success')
+@DevTool('/success')
 def _print_success_menu(menu_path: str) -> None:
     args = get_args_from_path(menu_path)
     result = _print_simple_msg(
@@ -63,7 +59,7 @@ def _print_success_menu(menu_path: str) -> None:
     )
     return result
 
-@DevTool(BASE_PATH + '/err')
+@DevTool('/err')
 def _print_err_menu(menu_path: str) -> str | None:
     args = get_args_from_path(menu_path)
     result = _print_simple_msg(
@@ -74,7 +70,7 @@ def _print_err_menu(menu_path: str) -> str | None:
             if APP_CONFIG.get('close_after_err', False)
             else result)
 
-@DevTool(BASE_PATH)
+@DevTool('')
 def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
@@ -90,7 +86,7 @@ def _print_main_menu(menu_path: str) -> str | None:
         options
     )
 
-@DevTool(BASE_PATH + '/tsilang')    
+@DevTool('/tsilang')    
 def _print_tsilang_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/tsilang/:sil2csv', 'Convert SIL to CSV.'),
