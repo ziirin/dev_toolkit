@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Jornada</title>
+  <link rel="icon" href="calculahora_favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0f1114; --card:#15181d; --muted:#9aa3ad; --text:#e8edf2;
+      --accent:#4cc9f0; --good:#3ddc84; --warn:#f9a825; --border:#222833;
+      --chip:#1e2430; --shadow:0 10px 30px rgba(0,0,0,.35); --radius:14px;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f8fb; --card:#ffffff; --muted:#6b7785; --text:#1d252e;
+        --accent:#2d7ef7; --good:#0aa86f; --warn:#d98200; --border:#e6e9ef;
+        --chip:#eef2f8; --shadow:0 8px 24px rgba(26,35,126,.08);
+      }
+    }
+    *{ box-sizing:border-box; font-family:"Nunito",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+    html,body{ height:100%; }
+    body{
+      margin:0; background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(76,201,240,.12), transparent 60%),
+        radial-gradient(1000px 500px at 110% 10%, rgba(61,220,132,.10), transparent 55%),
+        var(--bg);
+      color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .app{ width:min(860px, 96vw); background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    header{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px;
+      border-bottom:1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.02), transparent); }
+    .title{ display:flex; gap:12px; align-items:center; font-weight:700; letter-spacing:.2px; }
+    .dot{ width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 6px rgba(76,201,240,.15); }
+    .chip{ font-size:.86rem; color:var(--muted); background:var(--chip); padding:6px 10px; border-radius:999px; border:1px solid var(--border); }
+    .chip.friday{ color:#fff; background:linear-gradient(135deg, #4cc9f0 0%, #3ddc84 100%); border:none; }
+    .content{ display:grid; grid-template-columns: 1.15fr .85fr; gap:22px; padding:20px; }
+    @media (max-width: 880px){ .content{ grid-template-columns:1fr; } }
+    .card{ background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+      border:1px solid var(--border); border-radius:12px; padding:16px 14px; }
+    .card h3{ margin:0 0 10px 0; font-size:1rem; color:var(--muted); font-weight:700; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    label{ font-size:.92rem; color:var(--muted); font-weight:700; }
+    input[type="time"], input[type="number"]{
+      appearance:none; outline:none; border:1px solid var(--border); background:#0d1117; color:var(--text);
+      padding:10px 12px; border-radius:10px; font-size:1rem; transition:border-color .2s, box-shadow .2s, transform .02s;
+    }
+    @media (prefers-color-scheme: light){ input[type="time"], input[type="number"]{ background:#fff; } }
+    input[type="time"]:focus, input[type="number"]:focus{ border-color:var(--accent); box-shadow:0 0 0 4px rgba(76,201,240,.18); }
+    input[type="time"]:active{ transform:scale(.998); }
+    .row{ display:flex; gap:12px; align-items:center; }
+    .grow{ flex:1; }
+    .status.badge{ margin-top:10px; gap:10px; justify-content:flex-start;
+      padding:10px 12px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; }
+    .pill{ padding:6px 10px; border-radius:999px; font-size:.88rem; border:1px solid var(--border); background:var(--chip); color:var(--muted); }
+    .pill.ok{ background:rgba(61,220,132,.12); border-color:rgba(61,220,132,.35); color:var(--good); }
+    .pill.warn{ background:rgba(249,168,37,.12); border-color:rgba(249,168,37,.35); color:var(--warn); }
+    .counters{ display:grid; grid-template-columns:1fr; gap:12px; }
+    .counter{ border:1px solid var(--border); border-radius:12px; padding:14px 16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), transparent); display:none; }
+    .counter h4{ margin:0 0 6px 0; font-size:.95rem; color:var(--muted); font-weight:700; }
+    .counter .time{ font-variant-numeric:tabular-nums; font-size:1.6rem; font-weight:700; letter-spacing:.5px; }
+    .counter.ok{ box-shadow: inset 0 0 0 1px rgba(61,220,132,.25); }
+    .counter.warn{ box-shadow: inset 0 0 0 1px rgba(249,168,37,.25); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title"><div class="dot"></div><div>Calculadora de Jornada</div></div>
+      <div id="fridayChip" class="chip">Cargando…</div>
+    </header>
+
+    <div class="content">
+      <section class="card">
+        <h3>Horas de hoy</h3>
+        <div class="grid">
+          <div class="field">
+            <label for="timeA">Entrada</label>
+            <input type="time" id="timeA" value="08:00" step="300">
+          </div>
+          <div class="field" id="wrapB">
+            <label for="timeB">Comida</label>
+            <input type="time" id="timeB" value="14:00" step="300">
+          </div>
+          <div class="field" id="wrapC">
+            <label for="timeC">Tarde</label>
+            <input type="time" id="timeC" value="14:30" step="300">
+          </div>
+          <div class="field">
+            <label for="timeD">Salida</label>
+            <input type="time" id="timeD" value="17:00" step="300">
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <div class="field grow">
+            <label for="timeExtra">Minutos extra (+/-)</label>
+            <input type="number" id="timeExtra" value="0" max="59" min="-59">
+          </div>
+          <div class="status badge" id="statusBadge">
+            <span class="pill" id="pillState">—</span>
+            <small id="labelState">Estado</small>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h3>Contadores</h3>
+        <div class="counters">
+          <div class="counter" id="toLunchBox">
+            <h4>Hasta la comida</h4>
+            <div class="time" id="toLunch">--:--:--</div>
+          </div>
+          <div class="counter" id="toExitBox">
+            <h4>Hasta la salida</h4>
+            <div class="time" id="toExit">--:--:--</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const timeA=$('timeA'),timeB=$('timeB'),timeC=$('timeC'),timeD=$('timeD'),timeExtra=$('timeExtra');
+    const toLunchBox=$('toLunchBox'),toLunch=$('toLunch'),toExitBox=$('toExitBox'),toExit=$('toExit');
+    const fridayChip=$('fridayChip'),wrapB=$('wrapB'),wrapC=$('wrapC');
+    const pillState=$('pillState'),labelState=$('labelState');
+    const IS_FRIDAY=(new Date()).getDay()===5;
+
+    // --- utilidades ---
+    function getMins(t){ if(!t) return NaN; const [h,m]=t.split(':').map(Number); return h*60+m; }
+    function getTime(mins){ mins=Math.max(0,Math.floor(mins)); return String(Math.floor(mins/60)).padStart(2,'0')+":"+String(mins%60).padStart(2,'0'); }
+    function diffMins(t1,t2){ if(!t1||!t2) return 0; return getMins(t2)-getMins(t1); }
+    const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
+
+    // Requeridos
+    function baseRequired(){ return IS_FRIDAY ? 360 : 510; }               // para estado (Extra/Faltan)
+    function planRequired(){ return baseRequired() + parseInt(timeExtra.value||0,10); } // para calcular salida planeada
+
+    function applyFridayUI(){
+      fridayChip.textContent=IS_FRIDAY?'Jornada reducida (viernes)':'Jornada normal';
+      fridayChip.classList.toggle('friday',IS_FRIDAY);
+      wrapB.style.display=IS_FRIDAY?'none':'flex';
+      wrapC.style.display=IS_FRIDAY?'none':'flex';
+      if(IS_FRIDAY){ timeA.value="08:00"; timeD.value="14:00"; timeB.value=""; timeC.value=""; }
+    }
+
+    // Calcula D a partir de A/B/C y del ajuste de plan (timeExtra)
+    function calcSalida(){
+      const REQ=planRequired();
+      if(!timeA.value){ timeD.value=""; return; }
+      let antesComida=0;
+      if(!IS_FRIDAY && timeA.value && timeB.value) antesComida=diffMins(timeA.value,timeB.value);
+      const inicioTarde = (!IS_FRIDAY && timeC.value) ? timeC.value : timeA.value;
+      const faltan = Math.max(0, REQ - antesComida);
+      timeD.value = getTime(getMins(inicioTarde) + faltan);
+    }
+
+    // Calcula el “extra real” del día (respecto al base) cuando editas D a mano
+    function calcExtra(){
+      const base=baseRequired();
+      if(!timeA.value || !timeD.value) return;
+      let sum=diffMins(timeA.value,timeD.value);
+      if(!IS_FRIDAY && timeB.value && timeC.value) sum -= diffMins(timeB.value,timeC.value);
+      timeExtra.value = clamp(sum - base, -59, 59); // muestra tu delta, pero NO cambia el estado
+    }
+
+    // Estado (Extra/Faltan) respecto a 8:30 / 6:00 estrictos
+    function refreshState(){
+      const REQ=baseRequired();
+      let sum=0;
+      if(timeA.value && timeD.value) sum += diffMins(timeA.value,timeD.value);
+      if(!IS_FRIDAY && timeB.value && timeC.value) sum -= diffMins(timeB.value,timeC.value);
+      const diff = sum - REQ;
+      if (diff > 0){
+        pillState.textContent='Extra';
+        labelState.textContent=`+${diff} min`;
+        pillState.className='pill ok';
+      } else if (diff < 0){
+        pillState.textContent='Faltan';
+        labelState.textContent=`${-diff} min`;
+        pillState.className='pill warn';
+      } else {
+        pillState.textContent='Al día';
+        labelState.textContent='+0 min';
+        pillState.className='pill ok';
+      }
+    }
+
+    // Contadores
+    function hms(ms){ const s=Math.max(0,Math.floor(ms/1000));
+      return String(Math.floor(s/3600)).padStart(2,'0')+":"+String(Math.floor((s%3600)/60)).padStart(2,'0')+":"+String(s%60).padStart(2,'0'); }
+    function targetToday(hhmm){ if(!hhmm) return null; const [h,m]=hhmm.split(':').map(Number);
+      if(Number.isNaN(h)||Number.isNaN(m)) return null; const now=new Date();
+      return new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0); }
+    function tickCounters(){
+      const now=new Date();
+      // comida
+      if(!IS_FRIDAY){
+        const lunchT=targetToday(timeB.value||'14:00');
+        if(lunchT && lunchT>now){ toLunch.textContent=hms(lunchT-now); toLunchBox.style.display='block'; }
+        else toLunchBox.style.display='none';
+      }else toLunchBox.style.display='none';
+      // salida (usa D; en viernes, si no hay D, 14:00)
+      let exitHHMM=timeD.value; if(!exitHHMM && IS_FRIDAY) exitHHMM='14:00';
+      const exitT=targetToday(exitHHMM);
+      if(exitT && exitT>now){ toExit.textContent=hms(exitT-now); toExitBox.style.display='block'; }
+      else toExitBox.style.display='none';
+    }
+
+    // Listeners
+    [timeA,timeB,timeC,timeD,timeExtra].forEach(i =>
+      i.addEventListener('input', (e) => {
+        if (e.target !== timeD) calcSalida(); else calcExtra();
+        applyFridayUI();      // por si cambia el ajuste o valores
+        refreshState();
+        tickCounters();
+      })
+    );
+
+    // init
+    applyFridayUI();
+    calcSalida();
+    refreshState();
+    tickCounters();
+    setInterval(tickCounters, 1000);
+  </script>
+</body>
+</html>

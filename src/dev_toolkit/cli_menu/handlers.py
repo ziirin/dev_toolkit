@@ -1,5 +1,7 @@
 import os
 import subprocess
+import webbrowser
+from pathlib import Path
 from datetime import (datetime, timedelta)
 from .routing import DevTool
 from ..misc import get_args_from_path
@@ -128,3 +130,16 @@ def _handle_week_report(menu_path: str) -> str:
             'description': description,
             'remaining': RemainingTimeValidator.value_to_str(remaining)
         })
+        
+# ========================================================================
+
+@DevTool('/:calculahora')
+def _handle_calculahora(menu_path: str) -> str:
+    CALCULAHORA_PATH = Path('./assets/templates/calculahora.html').resolve()
+    result = BASE_PATH
+    
+    if os.path.isfile(CALCULAHORA_PATH):
+        webbrowser.open(f'file://{CALCULAHORA_PATH}')
+    else:
+        result += f'/err?msg=File "{CALCULAHORA_PATH}" not found.'
+    return result

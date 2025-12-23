@@ -80,6 +80,7 @@ def _print_main_menu(menu_path: str) -> str | None:
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.'),
         (BASE_PATH + '/:week_report', 'Launch week report editor.'),
+        (BASE_PATH + '/:calculahora', 'Launch Calculahora®.'),
     ]
     
     return _print_radiolist_menu(

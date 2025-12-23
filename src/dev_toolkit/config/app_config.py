@@ -20,7 +20,8 @@ APP_CONFIG = {
         '/devtoolkit/tsilang/:sil2csv',
         '/devtoolkit/tsilang/:csv2sil',
         '/devtoolkit/:kill_rad',
-        '/devtoolkit/:week_report'
+        '/devtoolkit/:week_report',
+        '/devtoolkit/:calculahora'
     ]
 }
 
