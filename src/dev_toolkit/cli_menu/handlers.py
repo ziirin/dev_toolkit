@@ -1,12 +1,15 @@
 import os
 import subprocess
 from datetime import (datetime, timedelta)
-from prompt_toolkit import prompt
 from .routing import DevTool
-from .validators import FirstDayOfWeekValidator
-from ..misc import (get_args_from_path, ONE_ATOM_THEME)
-from ..cli_menu.menu import BASE_PATH
+from ..misc import get_args_from_path
+from ..cli_menu.menu import (BASE_PATH, prompt)
 from ..modules.tsilang.clear_translations import remove_translation_data
+from .validators import (FirstDayOfWeekValidator,
+                         ProjectNameValidator,
+                         BoolValidator,
+                         RemainingTimeValidator,
+                         NumberValidator)
 from ..modules.tsilang.silFixer import (read_sil,
                                         write_sil,
                                         read_csv,
@@ -97,17 +100,31 @@ def _handle_week_report(menu_path: str) -> str:
     data = {
         'cur_week_begin': '',
         'next_week_begin': '',
-        'cur_week_projects': [{}],
-        'next_week_projects': [{}],
-        'variance_projects': [{}]
+        'cur_week_projects': {},
+        'next_week_projects': {},
+        'variance_projects': {}
     }
     
-    # now = datetime.now()
-    now = datetime(2025, 4, 19)
+    now = datetime.now()
     curr_monday = now - timedelta(days=now.weekday())
     next_monday = curr_monday + timedelta(days=7)
     data['cur_week_begin'] = prompt('First day of current week: ',
                                     validator=FirstDayOfWeekValidator(),
-                                    validate_while_typing=True,
-                                    default=next_monday.strftime('%d/%m'),
-                                    style=ONE_ATOM_THEME)
+                                    default=curr_monday.strftime('%d/%m'))
+    data['next_week_begin'] = next_monday
+    
+    add_another = 'y'
+    while add_another in BoolValidator.TRUE_VALUES:
+        project_name = prompt('Project name: ', validator=ProjectNameValidator())
+        ticket_num = prompt('T#', placeholder='0000', validator=NumberValidator())
+        description = prompt('Description: ')
+        remaining = prompt('Tiempo restante: ', validator=RemainingTimeValidator())
+        add_another = prompt('¿Añadir otro? (y/n)', validator=BoolValidator())
+        
+        if project_name not in data['cur_week_projects'].keys():
+            data['cur_week_projects'][project_name] = []
+        description = f'T#{ticket_num} - {description}' if ticket_num else description
+        data['cur_week_projects'][project_name].append({
+            'description': description,
+            'remaining': RemainingTimeValidator.value_to_str(remaining)
+        })

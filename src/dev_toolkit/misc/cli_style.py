@@ -22,7 +22,7 @@ ONE_ATOM_THEME = Style.from_dict({
     # 'dialog.body padding':      f'bg:{ONE_ATOM_PALETTE["background"]}',
     
     # --- General Prompt (User Input) ---
-    # 'prompt':                   f'{ONE_ATOM_PALETTE["normal_text"]}',
+    'prompt':                   f'{ONE_ATOM_PALETTE["blue"]}',
     # 'prompt_symbol':            f'{ONE_ATOM_PALETTE["blue"]}',
     # 'prompt_continuation':      f'{ONE_ATOM_PALETTE["blue"]}',
 

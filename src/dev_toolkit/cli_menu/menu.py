@@ -1,4 +1,8 @@
-from prompt_toolkit.shortcuts import (message_dialog, radiolist_dialog, button_dialog)
+from prompt_toolkit.shortcuts import (message_dialog,
+                                      radiolist_dialog,
+                                      button_dialog,
+                                      prompt as _prompt)
+from prompt_toolkit.validation import Validator
 from ..misc.cli_style import ONE_ATOM_THEME
 from ..config.app_config import APP_CONFIG
 from .routing import (DevTool, MENU_ROUTING, BASE_PATH)
@@ -100,6 +104,16 @@ def _print_tsilang_menu(menu_path: str) -> str:
     )
 
 # ========================================================================
+
+def prompt(msg: str, validator: Validator | None = None,
+           placeholder: str | None = None,
+           default: str | None = None) -> str:
+    return _prompt(f'> {msg}',
+                  validator=validator,
+                  validate_while_typing=(validator != None),
+                  placeholder=placeholder,
+                  default=default if default else '',
+                  style=ONE_ATOM_THEME)
 
 def resolve_path(menu_path: str = BASE_PATH) -> str | None:
     if menu_path.endswith('/'):

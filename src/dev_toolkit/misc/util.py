@@ -1,3 +1,8 @@
+from .traslations import TRANSLATIONS
+
+def translate(en_val: str) -> str:
+	return TRANSLATIONS.get(en_val, en_val)
+
 def require_args(args: dict[str, str],
 				 requirements: list[str]) -> bool:
 	result = set(requirements).issubset(args)
