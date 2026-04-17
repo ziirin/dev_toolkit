@@ -1,18 +1,18 @@
 # Define la ruta base
 $TARGET_DIR = "C:\Fuentes\Nucleo"
-$PROGRESS = 0
 
-# Check if directory exists
+# Verifica si el directorio existe
 if (!(Test-Path -Path $TARGET_DIR -PathType Container)) {
-    Write-Host "Error: Could not open directory $TARGET_DIR"
+    Write-Host "Error: No se pudo acceder al directorio $TARGET_DIR"
     exit 1
 }
 
-# Set target directory
+# Cambia al directorio objetivo
 Set-Location -Path $TARGET_DIR
-Write-Host "Target directory: $TARGET_DIR"
 
-# Extensions to remove list
+Write-Host "Eliminando archivos con extensiones específicas en: $TARGET_DIR"
+
+# Lista de extensiones a eliminar
 $extensions = @(
     "_3DPlus.exe",
     "*.obj",
@@ -27,50 +27,52 @@ $extensions = @(
     "*.tds",
     "*.tmp",
     "*.ild",
+    "*.local",
+    "*.identcache",
+    "*.stat",
     "*.`$`$`$",
     "*.@@@",
     "*.~*",
     "*.twopts"
 )
 
-# Update progress [1]
-Write-Host "Progress:$(++$PROGRESS)"
-
-
-# Remove files with listed extensions
+# Eliminar archivos con las extensiones listadas
 foreach ($ext in $extensions) {
-    Write-Host "Deleting $ext..."
+    Write-Host "Eliminando $ext..."
     Get-ChildItem -Path $ext -File -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force
-
-    # Update progress [2-18]
-    Write-Host "Progress:$(++$PROGRESS)"
 }
 
-# Remove 3DPlus/obj/Win32 folder
-$OBJ_DIR = Join-Path (Split-Path $TARGET_DIR -Parent) "Nucleo\3DPlus\obj\Win32"
+# Eliminar carpeta Nucleo/obj si existe
+$OBJ_DIR = Join-Path (Split-Path $TARGET_DIR -Parent) "Nucleo\Nucleo\obj"
 if (Test-Path -Path $OBJ_DIR -PathType Container) {
-    Write-Host "Removing directory: $OBJ_DIR"
+    Write-Host "Eliminando carpeta: $OBJ_DIR"
     Remove-Item -Path $OBJ_DIR -Recurse -Force
+} else {
+    Write-Host "Carpeta no encontrada: $OBJ_DIR"
 }
 
-# Update progress [19]
-Write-Host "Progress:$(++$PROGRESS)"
-
-# Remove Forma3D/obj/Win32 folder
-$OBJ_DIR = Join-Path (Split-Path $TARGET_DIR -Parent) "Nucleo\Forma3D\obj\Win32"
+# Eliminar carpeta 3DPlus/obj si existe
+$OBJ_DIR = Join-Path (Split-Path $TARGET_DIR -Parent) "Nucleo\3DPlus\obj"
 if (Test-Path -Path $OBJ_DIR -PathType Container) {
-    Write-Host "Removing directory: $OBJ_DIR"
+    Write-Host "Eliminando carpeta: $OBJ_DIR"
     Remove-Item -Path $OBJ_DIR -Recurse -Force
+} else {
+    Write-Host "Carpeta no encontrada: $OBJ_DIR"
 }
 
-# Update progress [20]
-Write-Host "Progress:$(++$PROGRESS)"
+# Eliminar carpeta Forma3d/obj si existe
+$OBJ_DIR = Join-Path (Split-Path $TARGET_DIR -Parent) "Nucleo\Forma3D\obj"
+if (Test-Path -Path $OBJ_DIR -PathType Container) {
+    Write-Host "Eliminando carpeta: $OBJ_DIR"
+    Remove-Item -Path $OBJ_DIR -Recurse -Force
+} else {
+    Write-Host "Carpeta no encontrada: $OBJ_DIR"
+}
 
-# Kill mtbcc32exc.exe processes
+# Matar procesos mtbcc32exc.exe
 Get-Process -Name "mtbcc32exc" -ErrorAction SilentlyContinue | ForEach-Object {
     Stop-Process -Id $_.Id -Force
 }
 
-# Update progress [21]
-Write-Host "Progress:$(++$PROGRESS)"
-Write-Host "Process completed."
+Write-Host "Proceso completado."
+Read-Host -Prompt "Presiona ENTER para salir"

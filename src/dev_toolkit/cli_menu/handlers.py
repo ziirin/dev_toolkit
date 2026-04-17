@@ -1,21 +1,16 @@
 import os
 import subprocess
 import webbrowser
-from pathlib import Path
-from datetime import (datetime, timedelta)
 from .routing import DevTool
 from ..misc import get_args_from_path
 from ..cli_menu.menu import (BASE_PATH, prompt)
 from ..modules.tsilang.clear_translations import remove_translation_data
-from .validators import (FirstDayOfWeekValidator,
-                         ProjectNameValidator,
-                         BoolValidator,
-                         RemainingTimeValidator,
-                         NumberValidator)
+from ..config.app_config import APP_CONFIG
 from ..modules.tsilang.silFixer import (read_sil,
                                         write_sil,
                                         read_csv,
-                                        write_csv)
+                                        write_csv,
+                                        get_lang_names)
 
 # ========================================================================
 
@@ -28,7 +23,7 @@ def _handle_sil2csv(menu_path: str) -> str:
     output_path = args.get('out', '')
     if os.path.isfile(input_path):
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        sil_data = read_sil(input_path)[0]
+        sil_data = read_sil(input_path, get_lang_names())[0]
         write_csv(output_path, sil_data)
         result += f'/success?msg=File succesfully converted ({output_path}).'
     else:
@@ -61,7 +56,10 @@ def _handle_clear(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
     result = BASE_PATH
     
-    path = args.get('path', '')
+    path = args.get('path')
+    if path == None:
+        path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
+    
     if os.path.isdir(path):
         try:
             remove_translation_data(path)
@@ -97,49 +95,13 @@ def _handle_kill_rad(menu_path: str) -> str:
         
 # ========================================================================
 
-@DevTool('/:week_report')
-def _handle_week_report(menu_path: str) -> str:
-    data = {
-        'cur_week_begin': '',
-        'next_week_begin': '',
-        'cur_week_projects': {},
-        'next_week_projects': {},
-        'variance_projects': {}
-    }
-    
-    now = datetime.now()
-    curr_monday = now - timedelta(days=now.weekday())
-    next_monday = curr_monday + timedelta(days=7)
-    data['cur_week_begin'] = prompt('First day of current week: ',
-                                    validator=FirstDayOfWeekValidator(),
-                                    default=curr_monday.strftime('%d/%m'))
-    data['next_week_begin'] = next_monday
-    
-    add_another = 'y'
-    while add_another in BoolValidator.TRUE_VALUES:
-        project_name = prompt('Project name: ', validator=ProjectNameValidator())
-        ticket_num = prompt('T#', placeholder='0000', validator=NumberValidator())
-        description = prompt('Description: ')
-        remaining = prompt('Tiempo restante: ', validator=RemainingTimeValidator())
-        add_another = prompt('¿Añadir otro? (y/n)', validator=BoolValidator())
-        
-        if project_name not in data['cur_week_projects'].keys():
-            data['cur_week_projects'][project_name] = []
-        description = f'T#{ticket_num} - {description}' if ticket_num else description
-        data['cur_week_projects'][project_name].append({
-            'description': description,
-            'remaining': RemainingTimeValidator.value_to_str(remaining)
-        })
-        
-# ========================================================================
-
 @DevTool('/:calculahora')
 def _handle_calculahora(menu_path: str) -> str:
-    CALCULAHORA_PATH = Path('./assets/templates/calculahora.html').resolve()
+    CALCULAHORA_URL = 'https://tickets.inescop.es/horas.html'
     result = BASE_PATH
     
-    if os.path.isfile(CALCULAHORA_PATH):
-        webbrowser.open(f'file://{CALCULAHORA_PATH}')
-    else:
-        result += f'/err?msg=File "{CALCULAHORA_PATH}" not found.'
+    try:
+        webbrowser.open(CALCULAHORA_URL)
+    except:
+        result += f'/err?msg=Cannout launch "{CALCULAHORA_URL}".'
     return result

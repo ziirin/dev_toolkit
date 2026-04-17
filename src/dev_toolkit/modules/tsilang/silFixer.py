@@ -1,19 +1,17 @@
 import os
 import csv
 import argparse
-
-from ...cli_menu.routing import DevTool
+from pathlib import Path
 
 # ========================================================================
 
 # Delimitadores y otros
-SIL_ID_DELIMITER = '='
-SIL_DELIMITER = '~!@#'
-CSV_DELIMITER = ';'
-NEW_LINE = '\n'
+SIL_ID_DELIMITER            = '='
+SIL_DELIMITER               = '~!@#'
+CSV_DELIMITER               = ';'
+NEW_LINE                    = '\n'
 
 # Identificador de idioma
-LANG_COUNT                  = 11
 LANG_ES                     = 'SPANISH'
 LANG_EN                     = 'ENGLISH'
 LANG_IT                     = 'ITALIAN'
@@ -26,36 +24,69 @@ LANG_PT                     = 'PORTUGUESE'
 LANG_EL                     = 'GREEK'
 LANG_DE                     = 'GERMAN'
 
-# Charsets
-LANG_ES_CHARSET             = 'ANSI_CHARSET'
-LANG_EN_CHARSET             = 'DEFAULT_CHARSET'
-LANG_IT_CHARSET             = 'DEFAULT_CHARSET'
-LANG_ZHt_CHARSET            = 'CHINESEBIG5_CHARSET'
-LANG_ZHs_CHARSET            = 'GB2312_CHARSET'
-LANG_TR_CHARSET             = 'TURKISH_CHARSET'
-LANG_FR_CHARSET             = 'ANSI_CHARSET'
-LANG_RU_CHARSET             = 'RUSSIAN_CHARSET'
-LANG_PT_CHARSET             = 'DEFAULT_CHARSET'
-LANG_EL_CHARSET             = 'GREEK_CHARSET'
-LANG_DE_CHARSET             = 'ANSI_CHARSET'
-
-# Fuentes
-LANG_ES_FONT                = 'Tahoma'
-LANG_EN_FONT                = 'Tahoma'
-LANG_IT_FONT                = 'Tahoma'
-LANG_ZHt_FONT               = 'Tahoma'
-LANG_ZHs_FONT               = 'Tahoma'
-LANG_TR_FONT                = 'Tahoma'
-LANG_FR_FONT                = 'Tahoma'
-LANG_RU_FONT                = 'Tahoma'
-LANG_PT_FONT                = 'Tahoma'
-LANG_EL_FONT                = 'Tahoma'
-LANG_DE_FONT                = 'Tahoma'
+LANGUAGES = {
+    LANG_ES: {
+        'charset': 'ANSI_CHARSET',
+        'font': 'Tahoma',
+        'index': 0
+    },
+    LANG_EN: {
+        'charset': 'DEFAULT_CHARSET',
+        'font': 'Tahoma',
+        'index': 1
+    },
+    LANG_IT: {
+        'charset': 'DEFAULT_CHARSET',
+        'font': 'Tahoma',
+        'index': 2
+    },
+    LANG_ZHt: {
+        'charset': 'CHINESEBIG5_CHARSET',
+        'font': 'Tahoma',
+        'index': 3
+    },
+    LANG_ZHs: {
+        'charset': 'GB2312_CHARSET',
+        'font': 'Tahoma',
+        'index': 4
+    },
+    LANG_TR: {
+        'charset': 'TURKISH_CHARSET',
+        'font': 'Tahoma',
+        'index': 5
+    },
+    LANG_FR: {
+        'charset': 'ANSI_CHARSET',
+        'font': 'Tahoma',
+        'index': 6
+    },
+    LANG_RU: {
+        'charset': 'RUSSIAN_CHARSET',
+        'font': 'Tahoma',
+        'index': 7
+    },
+    LANG_PT: {
+        'charset': 'DEFAULT_CHARSET',
+        'font': 'Tahoma',
+        'index': 8
+    },
+    LANG_EL: {
+        'charset': 'GREEK_CHARSET',
+        'font': 'Tahoma',
+        'index': 9
+    },
+    LANG_DE: {
+        'charset': 'ANSI_CHARSET',
+        'font': 'Tahoma',
+        'index': 10
+    },
+}
 
 # Categorías en archivos SILs
 SIL_CATEGORY_CAPTIONS       = '[Captions]'
 SIL_CATEGORY_CHARSET        = '[CharSets]' # No contiene traducciones
 SIL_CATEGORY_COLLECTIONS    = '[Collections]'
+SIL_CATEGORY_DIALOGS        = '[Dialogs]'
 SIL_CATEGORY_EXTENDED       = '[Extended]' # Contiene traducciones pero cuidado con IsSubComponent y TypeKind
 SIL_CATEGORY_FONTS          = '[Fonts]' # No contiene traducciones
 SIL_CATEGORY_HINTS          = '[Hints]'
@@ -67,32 +98,20 @@ SIL_CATEGORY_STRINGS        = '[Strings]'
 
 # ========================================================================
 
-def read_sil(sil_path: str, lang_list: list[str] | None = None) -> tuple[dict, dict]:
+def get_lang_names() -> list[str]:
+    return [lang for lang in sorted(LANGUAGES.keys(), key=lambda _key: LANGUAGES[_key]['index'])]
+
+def read_sil(sil_path: str, lang_list: list[str]) -> tuple[dict, dict]:
     sil_data = {}
     errors = {}
     
-    if not lang_list:
-        lang_list = [
-            LANG_ES,
-            LANG_EN,
-            LANG_IT,
-            LANG_ZHt,
-            LANG_ZHs,
-            LANG_TR,
-            LANG_FR,
-            LANG_RU,
-            LANG_PT,
-            LANG_EL,
-            LANG_DE
-        ]
-    
     try:
-        with open(sil_path, 'r', encoding='utf-8-sig') as sil_file:
+        with open(sil_path, 'r', encoding='utf-8') as sil_file:
             lines = sil_file.readlines()
             
             cur_category = ''
             for (idx, line) in enumerate(lines):
-                if line.endswith('\n'):
+                if line.endswith(NEW_LINE):
                     line = line[:-1]
                 
                 # Líneas de categorías
@@ -165,7 +184,25 @@ def write_sil(sil_path: str, sil_data: dict) -> tuple[bool, str]:
         
         # Preparar líneas
         lines = []
-        for (category, data) in sil_data.items():
+        sorted_keys = [
+            SIL_CATEGORY_CAPTIONS,
+            SIL_CATEGORY_CHARSET,
+            SIL_CATEGORY_COLLECTIONS,
+            SIL_CATEGORY_DIALOGS,
+            SIL_CATEGORY_EXTENDED,
+            SIL_CATEGORY_FONTS,
+            SIL_CATEGORY_HINTS,
+            SIL_CATEGORY_LANG_NAMES,
+            SIL_CATEGORY_MULTILINES,
+            SIL_CATEGORY_OPTIONS,
+            SIL_CATEGORY_OTHER,
+            SIL_CATEGORY_STRINGS
+        ]
+        for category in sorted_keys:
+            data = sil_data.get(category, [])
+            if len(data) == 0 and category not in [SIL_CATEGORY_LANG_NAMES, SIL_CATEGORY_OPTIONS]:
+                continue
+            
             # Añadimos el título de la categoría
             lines.append(NEW_LINE) # Salto de línea entre categorías
             lines.append(category)
@@ -173,17 +210,13 @@ def write_sil(sil_path: str, sil_data: dict) -> tuple[bool, str]:
             
             # Excepciones con valores fijos
             if category == SIL_CATEGORY_LANG_NAMES:
-                lines.append(f'Language_1={LANG_ES.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_10={LANG_EL.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_11={LANG_DE.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_2={LANG_EN.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_3={LANG_IT.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_4={LANG_ZHt.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_5={LANG_ZHs.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_6={LANG_TR.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_7={LANG_FR.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_8={LANG_RU.replace("_", " ")}' + NEW_LINE)
-                lines.append(f'Language_9={LANG_PT.replace("_", " ")}' + NEW_LINE)
+                lang_name_lines = []
+                for lang in get_lang_names():
+                    lang_name_lines.append(f'Language_{LANGUAGES[lang]["index"] + 1}={lang.replace("_", " ")}' + NEW_LINE)
+                
+                # Para mantener un orden específico donde entre Language_1 y Language_2, van Language_10, Language_11, etc...
+                lang_name_lines.sort(key=lambda _key: _key.split('=')[0])
+                lines += lang_name_lines
                 continue
             if category == SIL_CATEGORY_OPTIONS:
                 lines.append('CommentsFile=' + NEW_LINE)
@@ -193,21 +226,36 @@ def write_sil(sil_path: str, sil_data: dict) -> tuple[bool, str]:
             
             # Añadimos las líneas que tienen contenido
             for translation in data:
-                lines.append(
-                    translation.get('id', '') + SIL_ID_DELIMITER +
-                    translation.get(LANG_ES, '') + SIL_DELIMITER +
-                    translation.get(LANG_EN, '') + SIL_DELIMITER +
-                    translation.get(LANG_IT, '') + SIL_DELIMITER +
-                    translation.get(LANG_ZHt, '') + SIL_DELIMITER +
-                    translation.get(LANG_ZHs, '') + SIL_DELIMITER +
-                    translation.get(LANG_TR, '') + SIL_DELIMITER +
-                    translation.get(LANG_FR, '') + SIL_DELIMITER +
-                    translation.get(LANG_RU, '') + SIL_DELIMITER +
-                    translation.get(LANG_PT, '') + SIL_DELIMITER +
-                    translation.get(LANG_EL, '') + SIL_DELIMITER +
-                    translation.get(LANG_DE, '') + SIL_DELIMITER +
-                    NEW_LINE
-                )
+                line_id = translation.get('id', '')
+                
+                # Para las cadenas que contienen distintos valores de una lista, deben
+                # agruparse entre comillas si tienen espacios
+                need_quote_marks = category in [SIL_CATEGORY_EXTENDED, SIL_CATEGORY_MULTILINES] and \
+                    (line_id.endswith('.Items') or line_id.endswith('.Tabs') or line_id.endswith('.Categories'))
+                if need_quote_marks:
+                    line = line_id + SIL_ID_DELIMITER
+                    
+                    for lang in get_lang_names():
+                        trans_values = translation.get(lang, '').split(',')
+                        quoted_trans_list = []
+                        quoted_trans = None
+                        if len(trans_values) >= 2:
+                            for trans_value in trans_values:
+                                stripped_value = trans_value.strip()
+                                if ' ' in stripped_value and not (stripped_value.startswith('\"') and stripped_value.endswith('\"')):
+                                    quoted_trans_list.append(f'"{stripped_value}"')
+                                else:
+                                    quoted_trans_list.append(stripped_value)
+                            quoted_trans = ','.join(quoted_trans_list)
+                        line += (quoted_trans if quoted_trans else translation.get(lang, '')) + SIL_DELIMITER
+                        
+                    lines.append(line + NEW_LINE)
+                else:
+                    line = line_id + SIL_ID_DELIMITER
+                    for lang in get_lang_names():
+                        line += translation.get(lang, '') + SIL_DELIMITER
+                    line += NEW_LINE
+                    lines.append(line)
                 
                 # Añadimos las líneas de IsSubComponent y TypeKind con valores fijos
                 if category == SIL_CATEGORY_EXTENDED:
@@ -227,10 +275,16 @@ def read_csv(csv_path: str) -> tuple[dict, dict]:
         raw_data = []
         csv_data = {}
         errors = {}
-        with open(csv_path, 'r', encoding='utf-8-sig') as csv_file:
+        with open(csv_path, 'rb') as csv_file:
+            if csv_file.read(3) == b'\xef\xbb\xbf':
+                encoding = 'utf-8-sig'
+            else:
+                encoding = 'utf-8'
+        
+        with open(csv_path, 'r', encoding=encoding) as csv_file:
             reader = csv.DictReader(csv_file, delimiter=CSV_DELIMITER)
             raw_data = [row for row in reader]
-            
+        
         for (idx, data) in enumerate(raw_data):
             category = data.get('category', '')
             if category:
@@ -249,40 +303,14 @@ def read_csv(csv_path: str) -> tuple[dict, dict]:
 
 def write_csv(csv_path: str, sil_data: dict) -> tuple[bool, str]:
     # Cabecera CSV
-    header = [
-        'category',
-        'id',
-        LANG_ES,
-        LANG_EN,
-        LANG_IT,
-        LANG_ZHt,
-        LANG_ZHs,
-        LANG_TR,
-        LANG_FR,
-        LANG_RU,
-        LANG_PT,
-        LANG_EL,
-        LANG_DE
-    ]
-    csv_data = [header]
+    csv_data = [['category', 'id'] + get_lang_names()]
     
     # Preparar datos en formato lista de listas
     for (category, category_data) in sil_data.items():
         for data in category_data:
-            csv_item = []
-            csv_item.append(category)
-            csv_item.append(data['id'])
-            csv_item.append(data.get(LANG_ES, ''))
-            csv_item.append(data.get(LANG_EN, ''))
-            csv_item.append(data.get(LANG_IT, ''))
-            csv_item.append(data.get(LANG_ZHt, ''))
-            csv_item.append(data.get(LANG_ZHs, ''))
-            csv_item.append(data.get(LANG_TR, ''))
-            csv_item.append(data.get(LANG_FR, ''))
-            csv_item.append(data.get(LANG_RU, ''))
-            csv_item.append(data.get(LANG_PT, ''))
-            csv_item.append(data.get(LANG_EL, ''))
-            csv_item.append(data.get(LANG_DE, ''))
+            csv_item = [category, data['id']]
+            for lang in get_lang_names():        
+                csv_item.append(data.get(lang, ''))
             csv_data.append(csv_item)
     
     # Escribir CSV
@@ -308,28 +336,9 @@ def join(base_data: dict, join_data: dict) -> tuple[dict, dict]:
                 if data.get('id', ''):
                     _id = f'{category}|{data["id"]}'
                     if _id in indexed_data.keys():
-                        if indexed_data[_id][LANG_ES]:
-                            data[LANG_ES] = indexed_data[_id][LANG_ES]
-                        if indexed_data[_id][LANG_EN]:
-                            data[LANG_EN] = indexed_data[_id][LANG_EN]
-                        if indexed_data[_id][LANG_IT]:
-                            data[LANG_IT] = indexed_data[_id][LANG_IT]
-                        if indexed_data[_id][LANG_ZHt]:
-                            data[LANG_ZHt] = indexed_data[_id][LANG_ZHt]
-                        if indexed_data[_id][LANG_ZHs]:
-                            data[LANG_ZHs] = indexed_data[_id][LANG_ZHs]
-                        if indexed_data[_id][LANG_TR]:
-                            data[LANG_TR] = indexed_data[_id][LANG_TR]
-                        if indexed_data[_id][LANG_FR]:
-                            data[LANG_FR] = indexed_data[_id][LANG_FR]
-                        if indexed_data[_id][LANG_RU]:
-                            data[LANG_RU] = indexed_data[_id][LANG_RU]
-                        if indexed_data[_id][LANG_PT]:
-                            data[LANG_PT] = indexed_data[_id][LANG_PT]
-                        if indexed_data[_id][LANG_EL]:
-                            data[LANG_EL] = indexed_data[_id][LANG_EL]
-                        if indexed_data[_id][LANG_DE]:
-                            data[LANG_DE] = indexed_data[_id][LANG_DE]
+                        for lang in get_lang_names():                        
+                            if indexed_data[_id].get(lang, ''):
+                                data[lang] = indexed_data[_id][lang]
                 else:
                     continue
         else:
@@ -337,12 +346,83 @@ def join(base_data: dict, join_data: dict) -> tuple[dict, dict]:
 
     return (base_data, {})
 
+def process_file(input_file: str, args: argparse.Namespace) -> None:
+    # Completar lista de idiomas   
+    if len(args.lang_list) > 0:
+        lang_list = [lang.upper() for lang in args.lang_list]
+    else:
+        lang_list = get_lang_names()
+    
+    ext = os.path.splitext(input_file)[1] 
+    if  ext.upper() == '.SIL':
+        input_data, errors = read_sil(input_file, lang_list)
+    elif ext.upper() == '.CSV':
+        input_data, errors = read_csv(input_file)
+    else:
+        raise Exception(f'ERR. Formato de entrada desconocido ({ext}).')
+            
+    # Join
+    if args.join_file_path:
+        if os.path.isfile(args.join_file_path):
+            ext = os.path.splitext(args.join_file_path)[1]
+            if  ext.upper() == '.SIL':
+                join_data, _ = read_sil(args.join_file_path, get_lang_names())
+            elif ext.upper() == '.CSV':
+                join_data, _ = read_csv(args.join_file_path)
+            else:
+                raise Exception(f'ERR. Formato de entrada desconocido ({ext}).')
+            input_data, errors = join(input_data, join_data)
+        else:
+            raise Exception(f'Err. El archivo "{args.join_file_path}" no existe.')
+    
+            
+    # Clear empty english rows
+    if args.rme:
+        for category_data in input_data.values():
+            for data in category_data:
+                if not data[LANG_EN]:
+                    for lang in get_lang_names():
+                        if lang != LANG_ES and lang != LANG_EN and lang in data.keys():
+                            data[lang] = ''
+            
+    # Charset
+    if args.chs:
+        for data in input_data.get(SIL_CATEGORY_CHARSET, []):
+            for lang in get_lang_names():
+                if lang != 'id':
+                    data[lang] = LANGUAGES[lang]['charset']
+    
+    # Font
+    if args.fnt:
+        for data in input_data.get(SIL_CATEGORY_FONTS, []):
+            for lang in data.keys():
+                if lang != 'id':
+                    data[lang] = LANGUAGES[lang]['font']
+    
+    # Errores durante la lectura del archivo de entrada
+    print(f'Errores: {sum(1 for err in errors.values() if err.startswith("ERR."))}')
+    print(f'Warnings: {sum(1 for err in errors.values() if err.startswith("WRN."))}')
+    if args.verbose:
+        for n_line, err in errors.items():
+            print(f'  Line: {n_line}: {err}')
+        print()
+    
+    # Escribir el output
+    output_file = args.output if args.output else input_file
+    ext = os.path.splitext(output_file)[1]
+    if  ext.upper() == '.SIL':
+        write_sil(output_file, input_data)
+    elif ext.upper() == '.CSV':
+        write_csv(output_file, input_data)
+    else:
+        raise Exception(f'Err. Formato de salida desconocido ({ext}).')
+
 # ========================================================================
 
 if __name__ == '__main__':
     program_description = '''
     SIL FIXER
-    Permite realizar una serie de operaciones sobre un archivo sil.
+    Permite realizar una serie de operaciones sobre los archivos de traducción.
     '''
     parser = argparse.ArgumentParser(description=program_description)
     
@@ -372,7 +452,7 @@ if __name__ == '__main__':
     
     join_help = '''
     Unifica el archivo actual (A) con otro archivo SIL o CSV (B). El resultado es A con las traducciones de B.
-       - Si la traducción es distinto de vacío en A y en B, siempre manda B.
+       - Si la traducción es distinta de vacío en A y en B, siempre manda B.
        - Si la traducción es vacío en A y existe en B, manda B.
        - Si la traducción es vacío en B y existe en A, manda A.
     '''
@@ -412,118 +492,25 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # ---
     
-    # Completar lista de idiomas   
-    if len(args.lang_list) > 0:
-        lang_list = [lang.upper() for lang in args.lang_list]
-    else:
-        lang_list = [
-            LANG_ES,
-            LANG_EN,
-            LANG_IT,
-            LANG_ZHt,
-            LANG_ZHs,
-            LANG_TR,
-            LANG_FR,
-            LANG_RU,
-            LANG_PT,
-            LANG_EL,
-            LANG_DE
-        ]
-
-    ext = os.path.splitext(args.input)[1]
-    if  ext.upper() == '.SIL':
-        input_data, errors = read_sil(args.input, lang_list)
-    elif ext.upper() == '.CSV':
-        input_data, errors = read_csv(args.input)
-    else:
-        raise Exception(f'ERR. Formato de entrada desconocido ({ext}).')
-            
-    # Join
-    if args.join_file_path:
-        if os.path.isfile(args.join_file_path):
-            ext = os.path.splitext(args.join_file_path)[1]
-            if  ext.upper() == '.SIL':
-                join_data, _ = read_sil(args.join_file_path, [
-                    LANG_ES,
-                    LANG_EN,
-                    LANG_IT,
-                    LANG_ZHt,
-                    LANG_ZHs,
-                    LANG_TR,
-                    LANG_FR,
-                    LANG_RU,
-                    LANG_PT,
-                    LANG_EL,
-                    LANG_DE
-                ])
-            elif ext.upper() == '.CSV':
-                join_data, _ = read_csv(args.join_file_path)
-            else:
-                raise Exception(f'ERR. Formato de entrada desconocido ({ext}).')
-            input_data, errors = join(input_data, join_data)
+    try:
+        if os.path.isdir(args.input):
+            # Si es una carpeta, forzamos a sobreescribir el archivo original
+            args.output = ''
+            folder_path = Path(args.input)
+            sil_files = list(folder_path.glob('**/*.[sS][iI][lL]'))
+        elif os.path.isfile(args.input):
+            sil_files = [args.input]
         else:
-            raise Exception(f'Err. El archivo "{args.join_file_path}" no existe.')
-    
-            
-    # Clear empty english rows
-    if args.rme:
-        for category, category_data in input_data.items():
-            for data in category_data:
-                if not data[LANG_EN]:
-                    data[LANG_IT] = ''
-                    data[LANG_ZHt] = ''
-                    data[LANG_ZHs] = ''
-                    data[LANG_TR] = ''
-                    data[LANG_FR] = ''
-                    data[LANG_RU] = ''
-                    data[LANG_PT] = ''
-                    data[LANG_EL] = ''
-                    data[LANG_DE] = ''
-            
-    # Charset
-    if args.chs:
-        for data in input_data.get(SIL_CATEGORY_CHARSET, []):
-            data[LANG_ES] = LANG_ES_CHARSET
-            data[LANG_EN] = LANG_EN_CHARSET
-            data[LANG_IT] = LANG_IT_CHARSET
-            data[LANG_ZHt] = LANG_ZHt_CHARSET
-            data[LANG_ZHs] = LANG_ZHs_CHARSET
-            data[LANG_TR] = LANG_TR_CHARSET
-            data[LANG_FR] = LANG_FR_CHARSET
-            data[LANG_RU] = LANG_RU_CHARSET
-            data[LANG_PT] = LANG_PT_CHARSET
-            data[LANG_EL] = LANG_EL_CHARSET
-            data[LANG_DE] = LANG_DE_CHARSET
-    
-    # Font
-    if args.fnt:
-        for data in input_data.get(SIL_CATEGORY_FONTS, []):
-            data[LANG_ES] = LANG_ES_FONT
-            data[LANG_EN] = LANG_EN_FONT
-            data[LANG_IT] = LANG_IT_FONT
-            data[LANG_ZHt] = LANG_ZHt_FONT
-            data[LANG_ZHs] = LANG_ZHs_FONT
-            data[LANG_TR] = LANG_TR_FONT
-            data[LANG_FR] = LANG_FR_FONT
-            data[LANG_RU] = LANG_RU_FONT
-            data[LANG_PT] = LANG_PT_FONT
-            data[LANG_EL] = LANG_EL_FONT
-            data[LANG_DE] = LANG_DE_FONT
-    
-    # Errores durante la lectura del archivo de entrada
-    print(f'Errores: {sum(1 for err in errors.values() if err.startswith("ERR."))}')
-    print(f'Warnings: {sum(1 for err in errors.values() if err.startswith("WRN."))}')
-    if args.verbose:
-        for n_line, err in errors.items():
-            print(f'  Line: {n_line}: {err}')
-        print()
-    
-    # Escribir el output
-    output_path = args.output if args.output else args.input
-    ext = os.path.splitext(output_path)[1]
-    if  ext.upper() == '.SIL':
-        write_sil(output_path, input_data)
-    elif ext.upper() == '.CSV':
-        write_csv(output_path, input_data)
-    else:
-        raise Exception(f'Err. Formato de salida desconocido ({ext}).')
+            raise Exception(f'Err. Input erróneo. El archivo o directorio podría no existir ({args.input}).')
+        
+        print('============')
+        for sil_file in sil_files:
+            process_file(sil_file, args)
+            print(f'> Archivo procesado: {sil_file}')
+            print('============')
+        print('> Fin.')
+        print('============')
+    except Exception as e:
+        print('============')
+        print(f'> {e}')
+        print('============')

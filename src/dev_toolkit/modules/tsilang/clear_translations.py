@@ -85,8 +85,9 @@ def remove_translation_data(folder: str) -> None:
 								file.write(line)
 
 
-if len(sys.argv) != 2:
-	print("Falta el directorio sobre el que actuar.")
-else:
-	directory = sys.argv[1]
-	remove_translation_data(directory)
+if __name__ == '__main__':
+	if len(sys.argv) != 2:
+		print("Falta el directorio sobre el que actuar.")
+	else:
+		directory = sys.argv[1]
+		remove_translation_data(directory)

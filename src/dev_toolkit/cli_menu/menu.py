@@ -1,11 +1,14 @@
+from pathlib import Path
+
 from prompt_toolkit.shortcuts import (message_dialog,
                                       radiolist_dialog,
                                       button_dialog,
+                                      input_dialog,
                                       prompt as _prompt)
 from prompt_toolkit.validation import Validator
-from ..misc.cli_style import ONE_ATOM_THEME
 from ..config.app_config import APP_CONFIG
 from .routing import (DevTool, MENU_ROUTING, BASE_PATH)
+from ..misc.cli_style import ONE_ATOM_THEME
 from ..misc.util import get_args_from_path
 
 # ========================================================================
@@ -49,8 +52,20 @@ def _print_radiolist_menu(title: str, text: str,
             values=options,
             style=ONE_ATOM_THEME
         ).run()
-    
+    else:
+        result = f'{BASE_PATH}/err?msg=No hay opciones disponibles en este menú.'
+
     return result
+
+def _print_text_input(title: str, text: str,
+                 default: str = '',
+                 validator: Validator | None = None) -> str:
+    return input_dialog(
+        title=title,
+        text=text,
+        default=default,
+        validator=validator,
+        style=ONE_ATOM_THEME).run()
 
 # ========================================================================
 
@@ -97,12 +112,27 @@ def _print_tsilang_menu(menu_path: str) -> str:
         (BASE_PATH + '/tsilang/:clear', 'Clear DFM content.'),
     ]
     
-    return _print_radiolist_menu(
-        # 'DevToolkit → Tsilang',
+    title = _get_title_from_path(menu_path)
+    result = _print_radiolist_menu(
         _get_title_from_path(menu_path),
-        'Choose a tool:',
+        'Choose an option:',
         options
     )
+    
+    if result in ['/tsilang/:sil2csv', '/tsilang/:csv2sil']:
+        try:
+            input_file = Path(_print_text_input(title=title, text='Input file', default=str(Path(APP_CONFIG.get('global', {}).get('main_src_folder', '')))))
+            if not input_file.exists():
+                return f'{BASE_PATH}/err?msg=File not found: "{input_file}".'
+            
+            output_file = Path(_print_text_input(title=title, text='Output file', default=str(Path.home() / 'Desktop')))
+        except:
+            return f'{BASE_PATH}/err?msg=An error has occurred whilst reading one of the paths.'
+    
+        return f'{result}?in={input_file}&out={output_file}'
+    
+    else:
+        return result
 
 # ========================================================================
 
