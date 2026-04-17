@@ -22,12 +22,7 @@ if __name__ == '__main__':
     load_config()
     
     # --
-    # Initial path
-    next_path = menu.BASE_PATH
-    if args.init_path:
-        next_path += args.init_path
-    
-    # --
     # Main loop   
+    next_path = args.init_path
     while next_path:
         next_path = menu.resolve_path(next_path)

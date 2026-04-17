@@ -94,8 +94,8 @@ def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.'),
-        (BASE_PATH + '/:week_report', 'Launch week report editor.'),
         (BASE_PATH + '/:calculahora', 'Launch Calculahora®.'),
+        (BASE_PATH + '/common_links', 'Common links...')
     ]
     
     return _print_radiolist_menu(
@@ -114,7 +114,7 @@ def _print_tsilang_menu(menu_path: str) -> str:
     
     title = _get_title_from_path(menu_path)
     result = _print_radiolist_menu(
-        _get_title_from_path(menu_path),
+        title,
         'Choose an option:',
         options
     )
@@ -133,6 +133,23 @@ def _print_tsilang_menu(menu_path: str) -> str:
     
     else:
         return result
+
+@DevTool('/common_links')
+def _print_common_links_menu(menu_path: str) -> str:
+    options = [
+        (BASE_PATH + '/common_links/:ticket_platform', 'Ticket platform.'),
+        (BASE_PATH + '/common_links/:ia_gpt', 'IA: ChatGPT.'),
+        (BASE_PATH + '/common_links/:ia_gemini', 'IA: Gemini.'),
+        (BASE_PATH + '/common_links/:ia_claude', 'IA: Claude.')
+    ]
+    
+    result = _print_radiolist_menu(
+        _get_title_from_path(menu_path),
+        'Select a link:',
+        options
+    )
+    
+    return result
 
 # ========================================================================
 
