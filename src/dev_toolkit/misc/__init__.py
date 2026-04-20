@@ -1,5 +1,5 @@
-from .util import (get_args_from_path, require_args)
-from .cli_style import ONE_ATOM_THEME
+from src.dev_toolkit.misc.util import (get_args_from_path, require_args)
+from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
 
 __all__ = [
     'ONE_ATOM_THEME',

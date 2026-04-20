@@ -8,11 +8,11 @@ from prompt_toolkit.shortcuts import (message_dialog,
                                       prompt as _prompt)
 from prompt_toolkit.validation import Validator
 
-from ..cli_menu.validators import FileOrFolderValidator
-from ..config.app_config import APP_CONFIG
-from .routing import (DevTool, MENU_ROUTING, BASE_PATH)
-from ..misc.cli_style import ONE_ATOM_THEME
-from ..misc.util import get_args_from_path
+from src.dev_toolkit.cli_menu.validators import FileOrFolderValidator
+from src.dev_toolkit.cli_menu.routing import (DevTool, MENU_ROUTING, BASE_PATH)
+from src.dev_toolkit.config.app_config import APP_CONFIG
+from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
+from src.dev_toolkit.misc.util import get_args_from_path
 
 # ========================================================================
 

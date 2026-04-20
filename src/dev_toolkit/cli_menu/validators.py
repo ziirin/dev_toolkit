@@ -2,8 +2,6 @@ from datetime import datetime
 from pathlib import Path
 from prompt_toolkit.validation import Validator, ValidationError
 
-from ..cli_menu.routing import BASE_PATH
-
 class NoEmptyValidator(Validator):
     def validate(self, doc) -> None:
         if not doc.text:

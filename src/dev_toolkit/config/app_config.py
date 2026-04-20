@@ -1,18 +1,25 @@
 import os
+import sys
 import json
+from pathlib import Path
 
 # Path to config.json
-CONFIG_FILE = './src/config.json'
+if getattr(sys, 'frozen', False):
+    # Used from .exe file
+    CONFIG_FILE = str(Path(sys.executable).parent / 'config.json')
+else:
+    # Used from .py file
+    CONFIG_FILE = str(Path(sys.argv[0]).parent / 'config.json')
 
 # This is the default configuration
 # This configuration can be changed using config.json
 APP_CONFIG = {
     'close_after_success': True,
     'close_after_err': False,
+    'global': {
+        'main_src_folder': 'c:/fuentes/nucleo'
+    },
     'modules': {
-        'global': {
-            'main_src_folder': 'c:/fuentes/nucleo'
-        }
     },
     'allowed_tools': [
         '/devtoolkit',

@@ -2,17 +2,17 @@ import os
 from pathlib import Path
 import subprocess
 
-from .routing import DevTool
-from ..misc import get_args_from_path
-from ..cli_menu.menu import BASE_PATH
-from ..config.app_config import APP_CONFIG
-from ..modules.tsilang.clear_translations import remove_translation_data
-from ..modules.tsilang.browser import open_url
-from ..modules.tsilang.silFixer import (read_sil,
-                                        write_sil,
-                                        read_csv,
-                                        write_csv,
-                                        get_lang_names)
+from src.dev_toolkit.cli_menu.routing import DevTool
+from src.dev_toolkit.misc import get_args_from_path
+from src.dev_toolkit.cli_menu.menu import BASE_PATH
+from src.dev_toolkit.config.app_config import APP_CONFIG
+from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
+from src.dev_toolkit.modules.tsilang.browser import open_url
+from src.dev_toolkit.modules.tsilang.silFixer import (read_sil,
+                                                      write_sil,
+                                                      read_csv,
+                                                      write_csv,
+                                                      get_lang_names)
 
 # ========================================================================
 

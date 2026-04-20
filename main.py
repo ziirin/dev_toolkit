@@ -1,11 +1,10 @@
 import argparse
 
-from .dev_toolkit.cli_menu import menu
-from .dev_toolkit.cli_menu.routing import MENU_ROUTING
-from .dev_toolkit.config.app_config import load_config
+from src.dev_toolkit.cli_menu import menu
+from src.dev_toolkit.config.app_config import load_config
 
 # Import to load MENU_ROUTING
-from .dev_toolkit.modules import *
+from src.dev_toolkit.modules import *
 
 # ========================================================================
 
