@@ -19,9 +19,14 @@ APP_CONFIG = {
         '/devtoolkit/tsilang',
         '/devtoolkit/tsilang/:sil2csv',
         '/devtoolkit/tsilang/:csv2sil',
+        '/devtoolkit/tsilang/:clear',
         '/devtoolkit/:kill_rad',
-        '/devtoolkit/:calculahora'
-        '/devtoolkit/common_links'
+        # '/devtoolkit/:calculahora'
+        '/devtoolkit/common_links',
+        "/devtoolkit/common_links/:ticket_platform",
+        "/devtoolkit/common_links/:ia_gpt",
+        "/devtoolkit/common_links/:ia_gemini",
+        "/devtoolkit/common_links/:ia_claude"
     ]
 }
 

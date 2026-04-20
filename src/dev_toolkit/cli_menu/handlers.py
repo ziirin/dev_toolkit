@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import subprocess
 
 from .routing import DevTool
@@ -22,13 +23,32 @@ def _handle_sil2csv(menu_path: str) -> str:
     
     input_path = args.get('in', '')
     output_path = args.get('out', '')
-    if os.path.isfile(input_path):
+    
+    # Converting file
+    if Path(input_path).is_file():
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         sil_data = read_sil(input_path, get_lang_names())[0]
         write_csv(output_path, sil_data)
         result += f'/success?msg=File succesfully converted ({output_path}).'
+        
+    # Converting files from folder
+    elif Path(input_path).is_dir(): # and Path(output_path).is_dir():
+        files = list(Path(input_path).rglob('*.sil'))
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        for f in files:
+            sil_data = read_sil(f, get_lang_names())[0]
+            write_csv(Path(output_path) / f'{f.stem}.csv', sil_data)
+        result += f'/success?msg=Files succesfully converted ({output_path}).'
+    
+    # Some path doesnt exist
     else:
-        result += f'/err?msg=Following file doesnt exists: {input_path}.'
+        if not Path(input_path).exists():
+            result += f'/err?msg=Following file or directory doesnt exists: {input_path}.'
+        elif not Path(output_path).exists():
+            result += f'/err?msg=Following file or directory doesnt exists: {output_path}.'
+        else:
+            result += f'/err?msg=Error at input or output path.'
+        
 
     return result
 
@@ -39,16 +59,34 @@ def _handle_csv2sil(menu_path: str) -> str:
     
     input_path = args.get('in', '')
     output_path = args.get('out', '')
-    if os.path.isfile(input_path):
+    
+    # Converting file
+    if Path(input_path).is_file():
         try:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             csv_data = read_csv(input_path)[0]
             write_sil(output_path, csv_data)
             result += f'/success?msg=File succesfully converted ({output_path}).'
         except Exception as e:
-            result += f'/err?{e}'
+            result += f'/err?msg={e}'
+            
+    # Converting files from folder
+    elif Path(input_path).is_dir(): # and Path(output_path).is_dir():
+        files = list(Path(input_path).rglob('*.csv'))
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        for f in files:
+            csv_data = read_csv(f)[0]
+            write_sil(Path(output_path) / f'{f.stem}.sil', csv_data)
+        result += f'/success?msg=Files succesfully converted ({output_path}).'
+        
+    # Some path doesnt exist
     else:
-        result += f'/err?msg=Following file doesnt exists: {input_path}.'
+        if not Path(input_path).exists():
+            result += f'/err?msg=Following file or directory doesnt exists: {input_path}.'
+        elif not Path(output_path).exists():
+            result += f'/err?msg=Following file or directory doesnt exists: {output_path}.'
+        else:
+            result += f'/err?msg=Error at input or output path.'
 
     return result
 

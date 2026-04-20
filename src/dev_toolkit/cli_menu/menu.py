@@ -4,8 +4,11 @@ from prompt_toolkit.shortcuts import (message_dialog,
                                       radiolist_dialog,
                                       button_dialog,
                                       input_dialog,
+                                      clear as _clear,
                                       prompt as _prompt)
 from prompt_toolkit.validation import Validator
+
+from ..cli_menu.validators import FileOrFolderValidator
 from ..config.app_config import APP_CONFIG
 from .routing import (DevTool, MENU_ROUTING, BASE_PATH)
 from ..misc.cli_style import ONE_ATOM_THEME
@@ -119,14 +122,43 @@ def _print_tsilang_menu(menu_path: str) -> str:
         options
     )
     
-    if result in ['/tsilang/:sil2csv', '/tsilang/:csv2sil']:
+    if result in ['/devtoolkit/tsilang/:sil2csv', '/devtoolkit/tsilang/:csv2sil']:
         try:
-            input_file = Path(_print_text_input(title=title, text='Input file', default=str(Path(APP_CONFIG.get('global', {}).get('main_src_folder', '')))))
-            if not input_file.exists():
-                return f'{BASE_PATH}/err?msg=File not found: "{input_file}".'
+            input_file = Path(
+                prompt(
+                    msg='Input path',
+                    validator=FileOrFolderValidator(),
+                    default=str(Path(APP_CONFIG.get('global', {}).get('main_src_folder', '')))
+                )
+            )
             
-            output_file = Path(_print_text_input(title=title, text='Output file', default=str(Path.home() / 'Desktop')))
-        except:
+            output_file = Path(
+                prompt(
+                    msg='Output path',
+                    default=str(Path.home() / 'Desktop'),
+                    clear=False
+                )
+            )
+            
+            # input_file = Path(
+            #     _print_text_input(
+            #         title=title,
+            #         text='Input file',
+            #         default=str(Path(APP_CONFIG.get('global', {}).get('main_src_folder', ''))),
+            #         validator=ValidFileValidator()
+            #     )
+            # )
+            # if not input_file.exists():
+            #     return f'{BASE_PATH}/err?msg=File not found: "{input_file}".'
+            
+            # output_file = Path(
+            #     _print_text_input(
+            #         title=title,
+            #         text='Output file',
+            #         default=str(Path.home() / 'Desktop')
+            #     )
+            # )
+        except Exception as e:
             return f'{BASE_PATH}/err?msg=An error has occurred whilst reading one of the paths.'
     
         return f'{result}?in={input_file}&out={output_file}'
@@ -155,8 +187,11 @@ def _print_common_links_menu(menu_path: str) -> str:
 
 def prompt(msg: str, validator: Validator | None = None,
            placeholder: str | None = None,
-           default: str | None = None) -> str:
-    return _prompt(f'> {msg}',
+           default: str | None = None,
+           clear = True) -> str:
+    if clear:
+        _clear()
+    return _prompt(f'> {msg}: ',
                   validator=validator,
                   validate_while_typing=(validator != None),
                   placeholder=placeholder,

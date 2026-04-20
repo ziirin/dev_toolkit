@@ -1,5 +1,7 @@
 import argparse
+
 from .dev_toolkit.cli_menu import menu
+from .dev_toolkit.cli_menu.routing import MENU_ROUTING
 from .dev_toolkit.config.app_config import load_config
 
 # Import to load MENU_ROUTING
@@ -14,9 +16,10 @@ if __name__ == '__main__':
     """
     parser = argparse.ArgumentParser(description=program_description)
     
-    parser.add_argument('--initial-path',
+    parser.add_argument('--path',
                         dest='init_path',
-                        default=menu.BASE_PATH)
+                        default=menu.BASE_PATH,
+                        help='Path used as init path when the program is started.')
     
     args = parser.parse_args()
     load_config()

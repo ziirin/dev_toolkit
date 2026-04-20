@@ -1,6 +1,8 @@
 from datetime import datetime
-from ..misc.util import translate
+from pathlib import Path
 from prompt_toolkit.validation import Validator, ValidationError
+
+from ..cli_menu.routing import BASE_PATH
 
 class NoEmptyValidator(Validator):
     def validate(self, doc) -> None:
@@ -44,6 +46,12 @@ class ProjectNameValidator(NoEmptyValidator):
         if not doc.text in ProjectNameValidator.VALID_INPUTS:
             raise ValidationError(message=f'"{doc.text}" is not a valid project.')
         
+class FileOrFolderValidator(NoEmptyValidator):
+    def validate(self, doc) -> None:
+        super().validate(doc)
+        if not Path(doc.text).exists():
+            raise ValidationError(message=f'File or folder not found: "{doc.text}".')
+        
 class BoolValidator(NoEmptyValidator):
     TRUE_VALUES = [
         '1',
@@ -65,39 +73,3 @@ class BoolValidator(NoEmptyValidator):
            not doc.text.lower() in BoolValidator.FALSE_VALUES:
             raise ValidationError(message=f'"{doc.text}" is not a valid input.')
         
-class RemainingTimeValidator(NoEmptyValidator):
-    VALID_UNITS = [
-        'd',
-        'w',
-        'm',
-        'y'
-    ]
-    def validate(self, doc) -> None:
-        super().validate(doc)
-        if not doc.text[:-1].isnumeric():
-            raise ValidationError(message='Invalid format.')
-        unit = doc.text[-1:]
-        if unit not in RemainingTimeValidator.VALID_UNITS:
-            raise ValidationError(message=f'Invalid units "{unit}".')
-
-    def value_to_str(value: str) -> str:
-        if not value[:-1].isnumeric():
-            return ''
-        time = int(value[:-1])
-        unit = value[-1:]
-        if unit not in RemainingTimeValidator.VALID_UNITS:
-            return ''
-        
-        full_unit_str = ''
-        if unit == 'd':
-            full_unit_str = 'day'
-        elif unit == 'w':
-            full_unit_str = 'week'
-        elif unit == 'm':
-            full_unit_str = 'month'
-        elif unit == 'y':
-            full_unit_str = 'year'
-            
-        full_unit_str = full_unit_str if time == 1 else f'{full_unit_str}s'
-        full_unit_str = translate(full_unit_str)
-        return f'{time} {full_unit_str}.'
