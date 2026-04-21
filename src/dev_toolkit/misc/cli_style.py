@@ -9,7 +9,7 @@ ONE_ATOM_PALETTE = {
     'green': '#98c379',
     'yellow': '#e5c07b',
     'orange': '#d19a66',
-    'red': '#e06c75',
+    'red': '#f76f53',
     'blue': '#61afef',
     'purple': '#c678dd',
 }
@@ -18,6 +18,7 @@ ONE_ATOM_THEME = Style.from_dict({
     # --- Console Styles (Global App) ---
     'dialog':                   f'bg:{ONE_ATOM_PALETTE["background"]} {ONE_ATOM_PALETTE["normal_text"]}',
     'dialog.body':              f'bg:{ONE_ATOM_PALETTE["background"]} {ONE_ATOM_PALETTE["normal_text"]}',
+    'dialog frame.label':       f'fg:{ONE_ATOM_PALETTE["red"]} bold',
     # 'dialog.body focused':      f'bg:{ONE_ATOM_PALETTE["background"]} {ONE_ATOM_PALETTE["normal_text"]}',
     # 'dialog.body padding':      f'bg:{ONE_ATOM_PALETTE["background"]}',
     

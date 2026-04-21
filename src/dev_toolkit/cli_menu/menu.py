@@ -8,11 +8,15 @@ from prompt_toolkit.shortcuts import (message_dialog,
                                       prompt as _prompt)
 from prompt_toolkit.validation import Validator
 
+from src.dev_toolkit.cli_menu.controls import CustomRadioList
 from src.dev_toolkit.cli_menu.validators import FileOrFolderValidator
 from src.dev_toolkit.cli_menu.routing import (DevTool, MENU_ROUTING, BASE_PATH)
 from src.dev_toolkit.config.app_config import APP_CONFIG
 from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
 from src.dev_toolkit.misc.util import get_args_from_path
+from prompt_toolkit.widgets import Box, Button, Dialog, Label
+from prompt_toolkit.layout import HSplit, Layout
+from prompt_toolkit.application import Application, get_app
 
 # ========================================================================
 
@@ -48,15 +52,45 @@ def _print_radiolist_menu(title: str, text: str,
     result = None
     options = _filter_options(options)
     if len(options) > 0:
-        result = radiolist_dialog(
+        radio_list = CustomRadioList(values=options)
+        exit_text = 'Exit' if title == 'DevToolkit' else 'Back'
+        
+        dialog = Dialog(
             title=title,
-            text=text,
-            cancel_text='Exit' if title == 'DevToolkit' else 'Back',
-            values=options,
-            style=ONE_ATOM_THEME
-        ).run()
+            body=HSplit([
+                Label(text=text, dont_extend_height=True),
+                Box(radio_list, padding=1)
+            ]),
+            buttons=[
+                Button(text="Ok", handler=lambda: get_app().exit(result=radio_list.current_value)),
+                Button(text=exit_text, handler=lambda: get_app().exit(result=None))
+            ],
+            with_background=True
+        )
+        
+        app = Application(
+            layout=Layout(dialog),
+            style=ONE_ATOM_THEME,
+            full_screen=True,
+            mouse_support=True,
+            cursor=None
+        )
+        
+        app.layout.focus(radio_list)
+        
+        return app.run()
     else:
         result = f'{BASE_PATH}/err?msg=No hay opciones disponibles en este menú.'
+        
+    #     result = radiolist_dialog(
+    #         title=title,
+    #         text=text,
+    #         cancel_text='Exit' if title == 'DevToolkit' else 'Back',
+    #         values=options,
+    #         style=ONE_ATOM_THEME
+    #     ).run()
+    # else:
+    #     result = f'{BASE_PATH}/err?msg=No hay opciones disponibles en este menú.'
 
     return result
 
@@ -110,9 +144,11 @@ def _print_main_menu(menu_path: str) -> str | None:
 @DevTool('/tsilang')    
 def _print_tsilang_menu(menu_path: str) -> str:
     options = [
+        (BASE_PATH + '/tsilang/:load', 'Load SILs to DFM.'),
+        (BASE_PATH + '/tsilang/:save', 'Save SILs from DFM.'),
+        (BASE_PATH + '/tsilang/:clear', 'Clear SILs.'),
         (BASE_PATH + '/tsilang/:sil2csv', 'Convert SIL to CSV.'),
         (BASE_PATH + '/tsilang/:csv2sil', 'Convert CSV to SIL.'),
-        (BASE_PATH + '/tsilang/:clear', 'Clear DFM content.'),
     ]
     
     title = _get_title_from_path(menu_path)
@@ -158,7 +194,7 @@ def _print_tsilang_menu(menu_path: str) -> str:
             #         default=str(Path.home() / 'Desktop')
             #     )
             # )
-        except Exception as e:
+        except:
             return f'{BASE_PATH}/err?msg=An error has occurred whilst reading one of the paths.'
     
         return f'{result}?in={input_file}&out={output_file}'

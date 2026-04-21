@@ -4,3 +4,4 @@
 /config
 *pycache*
 /src/config.json
+/*.exe

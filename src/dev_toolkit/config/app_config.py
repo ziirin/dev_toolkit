@@ -3,13 +3,15 @@ import sys
 import json
 from pathlib import Path
 
-# Path to config.json
 if getattr(sys, 'frozen', False):
     # Used from .exe file
-    CONFIG_FILE = str(Path(sys.executable).parent / 'config.json')
+    BASE_DIR = Path(sys.executable).resolve().parent
 else:
     # Used from .py file
-    CONFIG_FILE = str(Path(sys.argv[0]).parent / 'config.json')
+    BASE_DIR = Path(sys.argv[0]).resolve().parent
+   
+# Path to config.json
+CONFIG_FILE = str(BASE_DIR / 'assets' / 'config.json')
 
 # This is the default configuration
 # This configuration can be changed using config.json
@@ -26,6 +28,8 @@ APP_CONFIG = {
         '/devtoolkit/tsilang',
         '/devtoolkit/tsilang/:sil2csv',
         '/devtoolkit/tsilang/:csv2sil',
+        "/devtoolkit/tsilang/:load",
+        "/devtoolkit/tsilang/:save",
         '/devtoolkit/tsilang/:clear',
         '/devtoolkit/:kill_rad',
         # '/devtoolkit/:calculahora'
@@ -35,6 +39,12 @@ APP_CONFIG = {
         "/devtoolkit/common_links/:ia_gemini",
         "/devtoolkit/common_links/:ia_claude"
     ]
+}
+
+APP_PATHS = {
+    'KILL_AND_CLEAN': str(BASE_DIR / 'assets' / 'scripts' / 'kill_and_clean.ps1'),
+    'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
+    'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'saveSils.exe')
 }
 
 def load_config() -> None:

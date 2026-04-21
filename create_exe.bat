@@ -1,1 +1,1 @@
-pyinstaller --noconfirm --onefile --console --paths "." main.py
+pyinstaller --noconfirm --onefile --console --distpath . --paths "." main.py

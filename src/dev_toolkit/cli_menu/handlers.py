@@ -5,9 +5,9 @@ import subprocess
 from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.misc import get_args_from_path
 from src.dev_toolkit.cli_menu.menu import BASE_PATH
-from src.dev_toolkit.config.app_config import APP_CONFIG
+from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
-from src.dev_toolkit.modules.tsilang.browser import open_url
+from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_script, run_ps_script
 from src.dev_toolkit.modules.tsilang.silFixer import (read_sil,
                                                       write_sil,
                                                       read_csv,
@@ -90,6 +90,39 @@ def _handle_csv2sil(menu_path: str) -> str:
 
     return result
 
+@DevTool('/tsilang/:load')
+def handle_load_sil(menu_path: str) -> str:
+    result = BASE_PATH
+    if run_bat_script(APP_PATHS.get('LOAD_SILS')):
+        result += f'/success?msg=Translations loaded.'
+    else:
+        result += f'/err?msg=An error occurred.'
+        
+    return result
+
+@DevTool('/tsilang/:save')
+def handle_save_sil(menu_path: str) -> str:
+    projects = [
+        r'c:\Fuentes\Nucleo\ShoeData'
+        r'c:\Fuentes\Nucleo\Nucleo',
+        r'c:\Fuentes\Nucleo\3DPlus',
+        r'c:\Fuentes\Nucleo\Forma3D',
+        r'c:\Fuentes\Nucleo\Foot3D',
+        r'c:\Fuentes\Nucleo\ICadNest'
+    ]
+    
+    success = True
+    for project in projects:
+        success &= run_exe_script(APP_PATHS.get('SAVE_SILS'), [project])
+        
+    result = BASE_PATH
+    if success:
+        result += '/success?msg=Saved translations.'
+    else:
+        result += f'/err?msg=Something went wrong when saving at least one project.'
+        
+    return result
+
 @DevTool('/tsilang/:clear')
 def _handle_clear(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
@@ -114,23 +147,15 @@ def _handle_clear(menu_path: str) -> str:
 
 @DevTool('/:kill_rad')
 def _handle_kill_rad(menu_path: str) -> str:
-    KILL_RAD_PATH = './assets/kill_and_clean.ps1'
+    KILL_RAD_PATH = './assets/scripts/kill_and_clean.ps1'
     result = BASE_PATH
     
-    if os.path.isfile(KILL_RAD_PATH):
-        process = subprocess.run(
-            ['powershell.exe', '-ExecutionPolicy', 'Bypass', '-File', KILL_RAD_PATH],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-                
-        if process.returncode == 0:
-            result += f'/success?msg=RAD Studio cleaned and killed.'
-        else:
-            result += f'/err?msg=An error occurred.'
+    if run_ps_script(KILL_RAD_PATH):
+        result += f'/success?msg=RAD Studio cleaned and killed.'
     else:
-        result += f'/err?msg=Script "{KILL_RAD_PATH}" not found.'
+        result += f'/err?msg=An error occurred.'
+    
+    return result
         
 # ========================================================================
 
