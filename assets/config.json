@@ -66,11 +66,8 @@
         "/devtoolkit/rad/:platform_changer",
 
         "/devtoolkit/:calculahora",
+        "/devtoolkit/:open_browser",
 
-        "/devtoolkit/common_links",
-        "/devtoolkit/common_links/:ticket_platform",
-        "/devtoolkit/common_links/:ia_gpt",
-        "/devtoolkit/common_links/:ia_gemini",
-        "/devtoolkit/common_links/:ia_claude"
+        "/devtoolkit/common_links"
     ]
 }

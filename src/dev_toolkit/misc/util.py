@@ -6,11 +6,11 @@ def require_args(args: dict[str, str],
 
 def get_args_from_path(path: str) -> dict[str, str]:
 	args = {}
-	splitted_path = path.split('?')
+	splitted_path = path.split('?', 1)
 	if len(splitted_path) == 2:
 		str_args = splitted_path[-1].split('&')
 		for arg in str_args:
-			arg_pair = arg.split('=')
+			arg_pair = arg.split('=', 1)
 			if len(arg_pair) == 2:
 				args[arg_pair[0]] = arg_pair[1]
 	

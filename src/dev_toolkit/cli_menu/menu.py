@@ -11,7 +11,7 @@ from prompt_toolkit.validation import Validator
 from src.dev_toolkit.cli_menu.controls import CustomRadioList
 from src.dev_toolkit.cli_menu.validators import FileOrFolderValidator
 from src.dev_toolkit.cli_menu.routing import (DevTool, MENU_ROUTING, BASE_PATH)
-from src.dev_toolkit.config.app_config import APP_CONFIG
+from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
 from src.dev_toolkit.misc.util import get_args_from_path
 from prompt_toolkit.widgets import Box, Button, Dialog, Label
@@ -131,7 +131,7 @@ def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/rad', 'RAD Studio tools...'),
-        (BASE_PATH + '/:calculahora', 'Launch Calculahora®.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Launch Calculahora®.'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
     
@@ -205,7 +205,7 @@ def _print_tsilang_menu(menu_path: str) -> str:
 @DevTool('/rad')
 def _print_rad_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/rad/:platform_changer?preset=develop', 'Platform changer: w32 Develop.'),
+        (BASE_PATH + '/rad/:platform_changer?preset=debug', 'Platform changer: w32 Debug.'),
         (BASE_PATH + '/rad/:platform_changer?preset=release', 'Platform changer: w64 Release.'),
         (BASE_PATH + '/rad/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.')
     ]
@@ -220,10 +220,10 @@ def _print_rad_menu(menu_path: str) -> str:
 @DevTool('/common_links')
 def _print_common_links_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/common_links/:ticket_platform', 'Ticket platform.'),
-        (BASE_PATH + '/common_links/:ia_gpt', 'IA: ChatGPT.'),
-        (BASE_PATH + '/common_links/:ia_gemini', 'IA: Gemini.'),
-        (BASE_PATH + '/common_links/:ia_claude', 'IA: Claude.')
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("TICKET_PLATFORM", "")}', 'Ticket platform.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'IA: ChatGPT.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("GEMINI", "")}', 'IA: Gemini.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'IA: Claude.')
     ]
     
     result = _print_radiolist_menu(

@@ -202,59 +202,14 @@ def _handle_platform_changer(menu_path: str) -> str:
         
 # ========================================================================
 
-@DevTool('/:calculahora')
-def _handle_calculahora(menu_path: str) -> str:
-    CALCULAHORA_URL = 'https://tickets.inescop.es/horas.html'
+@DevTool('/:open_browser')
+def _handle_open_browser(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    url = args.get('url')
     
-    if open_url(CALCULAHORA_URL):
+    if open_url(url):
         result = BASE_PATH
     else:
-        result = f'{BASE_PATH}/err?msg=Cannout launch "{CALCULAHORA_URL}".'
-    
-    return result
-
-# ========================================================================
-
-@DevTool('/common_links/:ticket_platform')
-def _handle_ticket_platform(menu_path: str) -> str:
-    TICKET_PLATFORM_URL = 'https://tickets.inescop.es/scp/index.php'
-    
-    if open_url(TICKET_PLATFORM_URL):
-        result = BASE_PATH
-    else:
-        result = f'{BASE_PATH}/err?msg=Cannout launch "{TICKET_PLATFORM_URL}".'
-    
-    return result
-
-@DevTool('/common_links/:ia_gpt')
-def _handle_ticket_platform(menu_path: str) -> str:
-    CHAT_GPT_URL = 'https://chatgpt.com/?temporary-chat=true'
-    
-    if open_url(CHAT_GPT_URL):
-        result = BASE_PATH
-    else:
-        result = f'{BASE_PATH}/err?msg=Cannout launch "{CHAT_GPT_URL}".'
-    
-    return result
-
-@DevTool('/common_links/:ia_gemini')
-def _handle_ticket_platform(menu_path: str) -> str:
-    GEMINI_URL = 'https://gemini.google.com/app'
-    
-    if open_url(GEMINI_URL):
-        result = BASE_PATH
-    else:
-        result = f'{BASE_PATH}/err?msg=Cannout launch "{GEMINI_URL}".'
-    
-    return result
-
-@DevTool('/common_links/:ia_claude')
-def _handle_ticket_platform(menu_path: str) -> str:
-    CLAUDE_URL = 'https://claude.ai/new'
-    
-    if open_url(CLAUDE_URL):
-        result = BASE_PATH
-    else:
-        result = f'{BASE_PATH}/err?msg=Cannout launch "{CLAUDE_URL}".'
+        result = f'{BASE_PATH}/err?msg=Cannout launch "{url}".'
     
     return result

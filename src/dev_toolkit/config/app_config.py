@@ -42,6 +42,11 @@ APP_CONFIG = {
 }
 
 APP_PATHS = {
+    'CALCULAHORA': 'https://tickets.inescop.es/horas.html',
+    'TICKET_PLATFORM': 'https://tickets.inescop.es/scp/index.php',
+    'CHAT_GPT': 'https://chatgpt.com/?temporary-chat=true',
+    'GEMINI': 'https://gemini.google.com/app',
+    'CLAUDE': 'https://claude.ai/new',
     'KILL_AND_CLEAN': str(BASE_DIR / 'assets' / 'scripts' / 'kill_and_clean.ps1'),
     'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
     'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'saveSils.exe')
