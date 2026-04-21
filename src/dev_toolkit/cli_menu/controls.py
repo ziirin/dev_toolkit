@@ -1,5 +1,6 @@
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.widgets import RadioList
+from prompt_toolkit.layout.controls import FormattedTextControl
 
 class CustomRadioList(RadioList):
     def __init__(self, values, default = None):
@@ -26,6 +27,10 @@ class CustomRadioList(RadioList):
         
         self.control.key_bindings = merge_key_bindings([self.control.key_bindings, kb])
         
+        if hasattr(self, 'control') and isinstance(self.control, FormattedTextControl):
+            self.control.show_cursor = False
+            
+        
     def _get_text_fragments(self):
         result = []
         for i, (_, label) in enumerate(self.values):
@@ -48,3 +53,4 @@ class CustomRadioList(RadioList):
         
         result.pop()
         return result
+    

@@ -2,20 +2,71 @@
     "close_after_success": false,
     "close_after_err": false,
     "global": {
-        "main_src_folder": "c:/fuentes/nucleo"
+        "main_src_folder": "c:/fuentes/nucleo",
+        "project_folders": [
+            "c:/fuentes/nucleo/nucleo/app/application",
+            "c:/fuentes/nucleo/nucleo/app/controls",
+            "c:/fuentes/nucleo/nucleo/app/geometry",
+            "c:/fuentes/nucleo/nucleo/app/importexport",
+            "c:/fuentes/nucleo/nucleo/app/ines_glu32",
+            "c:/fuentes/nucleo/nucleo/app/miscellaneous",
+            "c:/fuentes/nucleo/nucleo/app/pads",
+            "c:/fuentes/nucleo/nucleo/app/popups",
+            "c:/fuentes/nucleo/nucleo/app/resources",
+            "c:/fuentes/nucleo/nucleo/app/sisl43",
+            "c:/fuentes/nucleo/nucleo/app/smlib",
+            "c:/fuentes/nucleo/nucleo/app/wnlib",
+            "c:/fuentes/nucleo/nucleo/app/xml",
+
+            "c:/fuentes/nucleo/shoedata",
+
+            "c:/fuentes/nucleo/3dplus/app/application",
+            "c:/fuentes/nucleo/3dplus/app/controls",
+            "c:/fuentes/nucleo/3dplus/app/miscellaneous",
+            "c:/fuentes/nucleo/3dplus/app/pads",
+            "c:/fuentes/nucleo/3dplus/app/popups",
+            "c:/fuentes/nucleo/3dplus/app/resources",
+
+            "c:/fuentes/nucleo/forma3d/app/application",
+            "c:/fuentes/nucleo/forma3d/app/controls",
+            "c:/fuentes/nucleo/forma3d/app/database",
+            "c:/fuentes/nucleo/forma3d/app/miscellaneous",
+            "c:/fuentes/nucleo/forma3d/app/pads",
+            "c:/fuentes/nucleo/forma3d/app/popups",
+            "c:/fuentes/nucleo/forma3d/app/resources",
+
+            "c:/fuentes/nucleo/icadnest/app/application",
+            "c:/fuentes/nucleo/icadnest/app/controls",
+            "c:/fuentes/nucleo/icadnest/app/miscellaneous",
+            "c:/fuentes/nucleo/icadnest/app/pads",
+            "c:/fuentes/nucleo/icadnest/app/popups",
+            "c:/fuentes/nucleo/icadnest/app/resources",
+
+            "c:/fuentes/nucleo/foot3d/app/application",
+            "c:/fuentes/nucleo/foot3d/app/controls",
+            "c:/fuentes/nucleo/foot3d/app/miscellaneous",
+            "c:/fuentes/nucleo/foot3d/app/pads",
+            "c:/fuentes/nucleo/foot3d/app/resources"
+        ]
     },
     "modules": {
     },
     "allowed_tools": [
         "/devtoolkit",
+
         "/devtoolkit/tsilang",
         "/devtoolkit/tsilang/:sil2csv",
         "/devtoolkit/tsilang/:csv2sil",
         "/devtoolkit/tsilang/:load",
         "/devtoolkit/tsilang/:save",
         "/devtoolkit/tsilang/:clear",
-        "/devtoolkit/:kill_rad",
+
+        "/devtoolkit/rad",
+        "/devtoolkit/rad/:kill_rad",
+        "/devtoolkit/rad/:platform_changer",
+
         "/devtoolkit/:calculahora",
+
         "/devtoolkit/common_links",
         "/devtoolkit/common_links/:ticket_platform",
         "/devtoolkit/common_links/:ia_gpt",

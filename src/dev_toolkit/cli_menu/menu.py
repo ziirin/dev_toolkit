@@ -31,7 +31,7 @@ def _get_title_from_path(menu_path: str) -> str:
 def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
     allowed_tools = APP_CONFIG.get('allowed_tools', None)
     if allowed_tools:
-        fx = (lambda opt: opt[0] in allowed_tools and MENU_ROUTING.get(opt[0], None))
+        fx = (lambda opt: opt[0].split('?')[0] in allowed_tools and MENU_ROUTING.get(opt[0].split('?')[0], None))
         filtered_opts = list(filter(fx, options))
     else:
         filtered_opts = options.copy()
@@ -130,7 +130,7 @@ def _print_err_menu(menu_path: str) -> str | None:
 def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
-        (BASE_PATH + '/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.'),
+        (BASE_PATH + '/rad', 'RAD Studio tools...'),
         (BASE_PATH + '/:calculahora', 'Launch Calculahora®.'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
@@ -201,6 +201,21 @@ def _print_tsilang_menu(menu_path: str) -> str:
     
     else:
         return result
+
+@DevTool('/rad')
+def _print_rad_menu(menu_path: str) -> str:
+    options = [
+        (BASE_PATH + '/rad/:platform_changer?preset=develop', 'Platform changer: w32 Develop.'),
+        (BASE_PATH + '/rad/:platform_changer?preset=release', 'Platform changer: w64 Release.'),
+        (BASE_PATH + '/rad/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.')
+    ]
+    
+    title = _get_title_from_path(menu_path)
+    return _print_radiolist_menu(
+        title,
+        'Choose an option:',
+        options
+    )
 
 @DevTool('/common_links')
 def _print_common_links_menu(menu_path: str) -> str:

@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import subprocess
 
+from src.dev_toolkit.modules.platform_changer import platform_changer
 from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.misc import get_args_from_path
 from src.dev_toolkit.cli_menu.menu import BASE_PATH
@@ -145,7 +146,7 @@ def _handle_clear(menu_path: str) -> str:
 
 # ========================================================================
 
-@DevTool('/:kill_rad')
+@DevTool('/rad/:kill_rad')
 def _handle_kill_rad(menu_path: str) -> str:
     KILL_RAD_PATH = './assets/scripts/kill_and_clean.ps1'
     result = BASE_PATH
@@ -156,6 +157,48 @@ def _handle_kill_rad(menu_path: str) -> str:
         result += f'/err?msg=An error occurred.'
     
     return result
+
+@DevTool('/rad/:platform_changer')
+def _handle_platform_changer(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    preset = args.get('preset', 'debug')
+    
+    values = {}
+    if preset == 'debug':
+        values = dict.fromkeys(APP_CONFIG.get('global', {}).get('project_folders', []), ['w32', 'release'])
+        values['c:/fuentes/nucleo/shoedata'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/nucleo/app/geometry'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/nucleo/app/pads'] = ['w32', 'debug']
+        
+        values['c:/fuentes/nucleo/nucleo/app/pads'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/3dplus/app/pads'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/forma3d/app/pads'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/foot3d/app/pads'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/icadnest/app/pads'] = ['w32', 'debug']
+        
+        values['c:/fuentes/nucleo/nucleo/app/miscellaneous'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/3dplus/app/miscellaneous'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/forma3d/app/miscellaneous'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/foot3d/app/miscellaneous'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/icadnest/app/miscellaneous'] = ['w32', 'debug']
+        
+        values['c:/fuentes/nucleo/nucleo/app/application'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/3dplus/app/application'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/forma3d/app/application'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/foot3d/app/application'] = ['w32', 'debug']
+        values['c:/fuentes/nucleo/icadnest/app/application'] = ['w32', 'debug']
+        
+    elif preset == 'release':
+        values = dict.fromkeys(APP_CONFIG.get('global', {}).get('project_folders', []), ['w64', 'release'])
+    
+    if len(values) > 0:
+        platform_changer(values, True)
+        result =  f'{BASE_PATH}/success?msg=Platform succesfully changed.'
+    else:
+        result =  f'{BASE_PATH}/err?msg=No project folder found.'
+        
+    return result
+        
         
 # ========================================================================
 
