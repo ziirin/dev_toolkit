@@ -8,7 +8,7 @@ from src.dev_toolkit.misc import get_args_from_path
 from src.dev_toolkit.cli_menu.menu import BASE_PATH
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
-from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_script, run_ps_script
+from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_script
 from src.dev_toolkit.modules.tsilang.silFixer import (read_sil,
                                                       write_sil,
                                                       read_csv,
@@ -92,7 +92,7 @@ def _handle_csv2sil(menu_path: str) -> str:
     return result
 
 @DevTool('/tsilang/:load')
-def handle_load_sil(menu_path: str) -> str:
+def _handle_load_sil(menu_path: str) -> str:
     result = BASE_PATH
     if run_bat_script(APP_PATHS.get('LOAD_SILS')):
         result += f'/success?msg=Translations loaded.'
@@ -102,7 +102,7 @@ def handle_load_sil(menu_path: str) -> str:
     return result
 
 @DevTool('/tsilang/:save')
-def handle_save_sil(menu_path: str) -> str:
+def _handle_save_sil(menu_path: str) -> str:
     projects = [
         r'c:\Fuentes\Nucleo\ShoeData'
         r'c:\Fuentes\Nucleo\Nucleo',
@@ -211,5 +211,17 @@ def _handle_open_browser(menu_path: str) -> str:
         result = BASE_PATH
     else:
         result = f'{BASE_PATH}/err?msg=Cannout launch "{url}".'
+    
+    return result
+
+@DevTool('/:run_exe_detached')
+def _handle_run_exe_detached(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    path = args.get('path')
+    
+    if run_exe_detached(path):
+        result = BASE_PATH
+    else:
+        result = f'{BASE_PATH}/err?msg=Cannout launch "{path}".'
     
     return result

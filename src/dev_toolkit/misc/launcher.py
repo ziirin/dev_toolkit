@@ -67,3 +67,17 @@ def run_exe_script(script_path: str, args: list[str] = []) -> bool:
             return False
     except:
         return False
+    
+def run_exe_detached(script_path: str, args: list[str] = []) -> bool:
+    try:
+        if Path(script_path).is_file():
+            subprocess.Popen(
+                [script_path] + args,
+                creationflags=subprocess.DETACHED_PROCESS
+            )
+            
+            return True
+        else:
+            return False
+    except:
+        return False

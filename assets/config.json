@@ -64,10 +64,11 @@
         "/devtoolkit/rad",
         "/devtoolkit/rad/:kill_rad",
         "/devtoolkit/rad/:platform_changer",
+        
+        "/devtoolkit/inescop",
+        "/devtoolkit/:run_exe_detached",
 
-        "/devtoolkit/:calculahora",
-        "/devtoolkit/:open_browser",
-
-        "/devtoolkit/common_links"
+        "/devtoolkit/common_links",
+        "/devtoolkit/:open_browser"
     ]
 }

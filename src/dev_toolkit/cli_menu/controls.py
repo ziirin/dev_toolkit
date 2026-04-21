@@ -20,10 +20,16 @@ class CustomRadioList(RadioList):
         def _(event):
             self._selected_index = min(len(self.values) - 1, self._selected_index + 1)
             
+        @kb.add('right')
         @kb.add('enter')
         def _(event):
             current_value = self.values[self._selected_index][0]
             event.app.exit(result=current_value)
+        
+        @kb.add('left')
+        @kb.add('escape', eager=True)
+        def _(event):
+            event.app.exit(result=None)
         
         self.control.key_bindings = merge_key_bindings([self.control.key_bindings, kb])
         

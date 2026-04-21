@@ -32,24 +32,22 @@ APP_CONFIG = {
         "/devtoolkit/tsilang/:save",
         '/devtoolkit/tsilang/:clear',
         '/devtoolkit/:kill_rad',
-        # '/devtoolkit/:calculahora'
         '/devtoolkit/common_links',
-        "/devtoolkit/common_links/:ticket_platform",
-        "/devtoolkit/common_links/:ia_gpt",
-        "/devtoolkit/common_links/:ia_gemini",
-        "/devtoolkit/common_links/:ia_claude"
+        '/devtoolkit/:open_browser'
     ]
 }
 
 APP_PATHS = {
+    'KILL_AND_CLEAN': str(BASE_DIR / 'assets' / 'scripts' / 'kill_and_clean.ps1'),
+    'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
+    'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'saveSils.exe'),
     'CALCULAHORA': 'https://tickets.inescop.es/horas.html',
     'TICKET_PLATFORM': 'https://tickets.inescop.es/scp/index.php',
     'CHAT_GPT': 'https://chatgpt.com/?temporary-chat=true',
     'GEMINI': 'https://gemini.google.com/app',
     'CLAUDE': 'https://claude.ai/new',
-    'KILL_AND_CLEAN': str(BASE_DIR / 'assets' / 'scripts' / 'kill_and_clean.ps1'),
-    'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
-    'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'saveSils.exe')
+    'SOLYDOC': str(Path('C:/BDINESCOP/Programas/SOLYDOC/solydoc.exe')),
+    'GESPRO': str(Path('C:/BDINESCOP/Programas/GESPRO/GestionProyectos.exe'))
 }
 
 def load_config() -> None:

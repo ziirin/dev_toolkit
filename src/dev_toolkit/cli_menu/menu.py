@@ -131,7 +131,7 @@ def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/rad', 'RAD Studio tools...'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Launch Calculahora®.'),
+        (BASE_PATH + '/inescop', 'Inescop tools...'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
     
@@ -141,7 +141,7 @@ def _print_main_menu(menu_path: str) -> str | None:
         options
     )
 
-@DevTool('/tsilang')    
+@DevTool('/tsilang')
 def _print_tsilang_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/tsilang/:load', 'Load SILs to DFM.'),
@@ -176,24 +176,6 @@ def _print_tsilang_menu(menu_path: str) -> str:
                 )
             )
             
-            # input_file = Path(
-            #     _print_text_input(
-            #         title=title,
-            #         text='Input file',
-            #         default=str(Path(APP_CONFIG.get('global', {}).get('main_src_folder', ''))),
-            #         validator=ValidFileValidator()
-            #     )
-            # )
-            # if not input_file.exists():
-            #     return f'{BASE_PATH}/err?msg=File not found: "{input_file}".'
-            
-            # output_file = Path(
-            #     _print_text_input(
-            #         title=title,
-            #         text='Output file',
-            #         default=str(Path.home() / 'Desktop')
-            #     )
-            # )
         except:
             return f'{BASE_PATH}/err?msg=An error has occurred whilst reading one of the paths.'
     
@@ -217,10 +199,26 @@ def _print_rad_menu(menu_path: str) -> str:
         options
     )
 
+@DevTool('/inescop')
+def _print_inescop_menu(menu_path: str) -> str:
+    options = [
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}', 'Solydoc.'),
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.')
+    ]
+    
+    result = _print_radiolist_menu(
+        _get_title_from_path(menu_path),
+        'Choose a tool:',
+        options
+    )
+    
+    return result
+
 @DevTool('/common_links')
 def _print_common_links_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("TICKET_PLATFORM", "")}', 'Ticket platform.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Calculahora®.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'IA: ChatGPT.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("GEMINI", "")}', 'IA: Gemini.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'IA: Claude.')
