@@ -146,50 +146,51 @@ def _handle_clear(menu_path: str) -> str:
 
 # ========================================================================
 
-@DevTool('/rad/:kill_rad')
-def _handle_kill_rad(menu_path: str) -> str:
-    KILL_RAD_PATH = './assets/scripts/kill_and_clean.ps1'
-    result = BASE_PATH
-    
-    if run_ps_script(KILL_RAD_PATH):
-        result += f'/success?msg=RAD Studio cleaned and killed.'
-    else:
-        result += f'/err?msg=An error occurred.'
-    
-    return result
-
 @DevTool('/rad/:platform_changer')
 def _handle_platform_changer(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
     preset = args.get('preset', 'debug')
     
     values = {}
+    cbproj_files = Path(APP_CONFIG.get('global', {}).get('main_src_folder', '')).rglob('*.cbproj')
+    cbproj_folders = {str(f.parent).lower() for f in cbproj_files}
     if preset == 'debug':
-        values = dict.fromkeys(APP_CONFIG.get('global', {}).get('project_folders', []), ['w32', 'release'])
-        values['c:/fuentes/nucleo/shoedata'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/nucleo/app/geometry'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/nucleo/app/pads'] = ['w32', 'debug']
+        debug_projects = [
+            str(Path('c:/fuentes/nucleo/shoedata')),
+            
+            str(Path('c:/fuentes/nucleo/nucleo/app/geometry')),
+            
+            str(Path('c:/fuentes/nucleo/nucleo/app/pads')),
+            str(Path('c:/fuentes/nucleo/3dplus/app/pads')),
+            str(Path('c:/fuentes/nucleo/forma3d/app/pads')),
+            str(Path('c:/fuentes/nucleo/foot3d/app/pads')),
+            str(Path('c:/fuentes/nucleo/icadnest/app/pads')),
+            
+            str(Path('c:/fuentes/nucleo/nucleo/app/miscellaneous')),
+            str(Path('c:/fuentes/nucleo/3dplus/app/miscellaneous')),
+            str(Path('c:/fuentes/nucleo/forma3d/app/miscellaneous')),
+            str(Path('c:/fuentes/nucleo/foot3d/app/miscellaneous')),
+            str(Path('c:/fuentes/nucleo/icadnest/app/miscellaneous')),
+            
+            str(Path('c:/fuentes/nucleo/nucleo/app/application')),
+            str(Path('c:/fuentes/nucleo/3dplus/app/application')),
+            str(Path('c:/fuentes/nucleo/forma3d/app/application')),
+            str(Path('c:/fuentes/nucleo/foot3d/app/application')),
+            str(Path('c:/fuentes/nucleo/icadnest/app/application')),
+            
+            str(Path('c:/fuentes/nucleo/3dplus/app')),
+            str(Path('c:/fuentes/nucleo/forma3d/app')),
+            str(Path('c:/fuentes/nucleo/foot3d/app')),
+            str(Path('c:/fuentes/nucleo/icadnest/app')),
+        ]
         
-        values['c:/fuentes/nucleo/nucleo/app/pads'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/3dplus/app/pads'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/forma3d/app/pads'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/foot3d/app/pads'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/icadnest/app/pads'] = ['w32', 'debug']
-        
-        values['c:/fuentes/nucleo/nucleo/app/miscellaneous'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/3dplus/app/miscellaneous'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/forma3d/app/miscellaneous'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/foot3d/app/miscellaneous'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/icadnest/app/miscellaneous'] = ['w32', 'debug']
-        
-        values['c:/fuentes/nucleo/nucleo/app/application'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/3dplus/app/application'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/forma3d/app/application'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/foot3d/app/application'] = ['w32', 'debug']
-        values['c:/fuentes/nucleo/icadnest/app/application'] = ['w32', 'debug']
+        values = dict.fromkeys(cbproj_folders, ['w32', 'release'])
+        for value in values:
+            if value.lower() in debug_projects:
+                values[value] = ['w32', 'debug']
         
     elif preset == 'release':
-        values = dict.fromkeys(APP_CONFIG.get('global', {}).get('project_folders', []), ['w64', 'release'])
+        values = dict.fromkeys(cbproj_folders, ['w64', 'release'])
     
     if len(values) > 0:
         platform_changer(values, True)
@@ -214,6 +215,18 @@ def _handle_open_browser(menu_path: str) -> str:
     
     return result
 
+@DevTool('/:run_ps_script')
+def _handle_run_ps_script(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    path = args.get('path', '')
+    
+    if run_ps_script(path):
+        result = BASE_PATH
+    else:
+        result = f'{BASE_PATH}/err?msg=Cannout launch "{path}".'
+    
+    return result
+
 @DevTool('/:run_exe_detached')
 def _handle_run_exe_detached(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
@@ -225,3 +238,4 @@ def _handle_run_exe_detached(menu_path: str) -> str:
         result = f'{BASE_PATH}/err?msg=Cannout launch "{path}".'
     
     return result
+

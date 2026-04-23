@@ -68,11 +68,3 @@ if (Test-Path -Path $OBJ_DIR -PathType Container) {
 } else {
     Write-Host "Carpeta no encontrada: $OBJ_DIR"
 }
-
-# Matar procesos mtbcc32exc.exe
-Get-Process -Name "mtbcc32exc" -ErrorAction SilentlyContinue | ForEach-Object {
-    Stop-Process -Id $_.Id -Force
-}
-
-Write-Host "Proceso completado."
-# Read-Host -Prompt "Presiona ENTER para salir"

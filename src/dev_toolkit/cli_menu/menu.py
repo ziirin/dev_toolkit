@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from prompt_toolkit.shortcuts import (message_dialog,
-                                      radiolist_dialog,
                                       button_dialog,
                                       input_dialog,
                                       clear as _clear,
@@ -189,7 +188,8 @@ def _print_rad_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/rad/:platform_changer?preset=debug', 'Platform changer: w32 Debug.'),
         (BASE_PATH + '/rad/:platform_changer?preset=release', 'Platform changer: w64 Release.'),
-        (BASE_PATH + '/rad/:kill_rad', 'Kill RAD Studio subprocesses and clean projects.')
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("KILL_RAD")}', 'Kill TwineCompile subprocesses.'),
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("CLEAN_RAD")}', 'Clean temporal files.')
     ]
     
     title = _get_title_from_path(menu_path)

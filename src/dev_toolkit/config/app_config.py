@@ -16,7 +16,7 @@ CONFIG_FILE = str(BASE_DIR / 'assets' / 'config.json')
 # This is the default configuration
 # This configuration can be changed using config.json
 APP_CONFIG = {
-    'close_after_success': True,
+    'close_after_success': False,
     'close_after_err': False,
     'global': {
         'main_src_folder': 'c:/fuentes/nucleo'
@@ -25,20 +25,30 @@ APP_CONFIG = {
     },
     'allowed_tools': [
         '/devtoolkit',
+
         '/devtoolkit/tsilang',
         '/devtoolkit/tsilang/:sil2csv',
         '/devtoolkit/tsilang/:csv2sil',
-        "/devtoolkit/tsilang/:load",
-        "/devtoolkit/tsilang/:save",
+        '/devtoolkit/tsilang/:load',
+        '/devtoolkit/tsilang/:save',
         '/devtoolkit/tsilang/:clear',
-        '/devtoolkit/:kill_rad',
+
+        '/devtoolkit/rad',
+        '/devtoolkit/rad/:kill_rad',
+        '/devtoolkit/rad/:platform_changer',
+        
+        '/devtoolkit/inescop',
         '/devtoolkit/common_links',
-        '/devtoolkit/:open_browser'
+
+        '/devtoolkit/:open_browser',
+        '/devtoolkit/:run_ps_script',
+        '/devtoolkit/:run_exe_detached'
     ]
 }
 
 APP_PATHS = {
-    'KILL_AND_CLEAN': str(BASE_DIR / 'assets' / 'scripts' / 'kill_and_clean.ps1'),
+    'KILL_RAD': str(BASE_DIR / 'assets' / 'scripts' / 'kill_rad.ps1'),
+    'CLEAN_RAD': str(BASE_DIR / 'assets' / 'scripts' / 'clean_rad.ps1'),
     'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
     'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'saveSils.exe'),
     'CALCULAHORA': 'https://tickets.inescop.es/horas.html',

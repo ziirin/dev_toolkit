@@ -97,8 +97,8 @@ def _replace_cbproj_options(file_path, is_64bits, modify_version, config):
 def platform_changer(values: dict[str, list[str]], modify_version: bool):
     # Obtener archivos .cbproj
     for directory, value in values.items():
-        path_search = os.path.join(directory, "**", "*.cbproj")
-        found = glob.glob(path_search, recursive=True)
+        path_search = os.path.join(directory, "*.cbproj")
+        found = glob.glob(path_search, recursive=False)
         
         # Modificar .cbproj
         is_64bits = (value[0] == 'w64')
