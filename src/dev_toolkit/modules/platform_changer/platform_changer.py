@@ -127,5 +127,3 @@ def platform_changer(values: dict[str, list[str]], modify_version: bool):
                     full_file_name = os.path.join(src_path, dll_item)
                     if os.path.isfile(full_file_name):
                         shutil.copy(full_file_name, app_path)
-
-    print("Acción finalizada")
