@@ -2,7 +2,8 @@
     "close_after_success": false,
     "close_after_err": false,
     "global": {
-        "main_src_folder": "c:/fuentes/nucleo"
+        "main_src_folder": "c:/fuentes/nucleo",
+        "backup_folder": "d:/backup"
     },
     "modules": {
     },
@@ -21,6 +22,7 @@
         "/devtoolkit/rad/:platform_changer",
         
         "/devtoolkit/inescop",
+        "/devtoolkit/:backup",
         "/devtoolkit/common_links",
 
         "/devtoolkit/:open_browser",

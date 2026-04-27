@@ -131,6 +131,7 @@ def _print_main_menu(menu_path: str) -> str | None:
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/rad', 'RAD Studio tools...'),
         (BASE_PATH + '/inescop', 'Inescop tools...'),
+        (BASE_PATH + f'/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', f'Create src folder backup.'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
     

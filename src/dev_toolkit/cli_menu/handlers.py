@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
-import subprocess
+import datetime
 
+from src.dev_toolkit.cli_menu.validators import NotFileOrFolderValidator
+from src.dev_toolkit.modules.backup.backup import create_backup
 from src.dev_toolkit.modules.platform_changer import platform_changer
 from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.misc import get_args_from_path
-from src.dev_toolkit.cli_menu.menu import BASE_PATH
+from src.dev_toolkit.cli_menu.menu import BASE_PATH, prompt
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
 from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_script
@@ -199,8 +201,30 @@ def _handle_platform_changer(menu_path: str) -> str:
         result =  f'{BASE_PATH}/err?msg=No project folder found.'
         
     return result
-        
-        
+
+# ========================================================================
+
+@DevTool('/:backup')
+def _handle_backup(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    src_folder = args.get('src_folder', APP_CONFIG.get('global', {}).get('main_src_folder', ''))
+    rar_file = args.get('rar_file')
+    
+    backup_folder = APP_CONFIG.get('global', {}).get('backup_folder')
+    if not rar_file:
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        default_path = str(Path(backup_folder) / f'backup_{timestamp}.rar')
+        rar_file = str(Path(prompt('Backup RAR file name', validator=NotFileOrFolderValidator(), default=default_path)))
+
+    result = BASE_PATH
+    if create_backup(src_folder, rar_file):
+        result += f'/success?msg=Backup done.'
+    else:
+        result += f'/err?msg=Something went wrong.'
+    
+    return result
+    
+
 # ========================================================================
 
 @DevTool('/:open_browser')
