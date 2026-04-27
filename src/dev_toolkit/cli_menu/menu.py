@@ -30,7 +30,8 @@ def _get_title_from_path(menu_path: str) -> str:
 def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
     allowed_tools = APP_CONFIG.get('allowed_tools', None)
     if allowed_tools:
-        fx = (lambda opt: opt[0].split('?')[0] in allowed_tools and MENU_ROUTING.get(opt[0].split('?')[0], None))
+        # fx = (lambda opt: opt[0].split('?')[0] in allowed_tools and MENU_ROUTING.get(opt[0].split('?')[0], None))
+        fx = (lambda opt: MENU_ROUTING.get(opt[0].split('?')[0], None))
         filtered_opts = list(filter(fx, options))
     else:
         filtered_opts = options.copy()
@@ -204,7 +205,8 @@ def _print_rad_menu(menu_path: str) -> str:
 def _print_inescop_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}', 'Solydoc.'),
-        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.')
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.'),
+        (BASE_PATH + '/inescop/:search_icons', 'Search Icons.')
     ]
     
     result = _print_radiolist_menu(

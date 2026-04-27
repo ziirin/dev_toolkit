@@ -19,31 +19,10 @@ APP_CONFIG = {
     'close_after_success': False,
     'close_after_err': False,
     'global': {
-        'main_src_folder': 'c:/fuentes/nucleo'
-    },
-    'modules': {
-    },
-    'allowed_tools': [
-        '/devtoolkit',
-
-        '/devtoolkit/tsilang',
-        '/devtoolkit/tsilang/:sil2csv',
-        '/devtoolkit/tsilang/:csv2sil',
-        '/devtoolkit/tsilang/:load',
-        '/devtoolkit/tsilang/:save',
-        '/devtoolkit/tsilang/:clear',
-
-        '/devtoolkit/rad',
-        '/devtoolkit/rad/:kill_rad',
-        '/devtoolkit/rad/:platform_changer',
-        
-        '/devtoolkit/inescop',
-        '/devtoolkit/common_links',
-
-        '/devtoolkit/:open_browser',
-        '/devtoolkit/:run_ps_script',
-        '/devtoolkit/:run_exe_detached'
-    ]
+        'main_src_folder': 'c:/fuentes/nucleo',
+        'backup_folder': 'd:/backup',
+        'icons_folder': '//backup-fa/FA/Iconos'
+    }
 }
 
 APP_PATHS = {

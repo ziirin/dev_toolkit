@@ -74,7 +74,7 @@ def _replace_cbproj_options(file_path, is_64bits, modify_version, config):
 
             # 3. Lógica para Condición '$(Base)'!=''
             condition = property_group.attrib.get('Condition', '')
-            if "'$(Base)'!=''" in condition:
+            if "'$(Base)'!=''" == condition:
                 # RunBCCOutOfProcess
                 rbcc = property_group.find('ms:RunBCCOutOfProcess', ns)
                 if rbcc is None:
@@ -97,7 +97,7 @@ def _replace_cbproj_options(file_path, is_64bits, modify_version, config):
 def platform_changer(values: dict[str, list[str]], modify_version: bool):
     # Obtener archivos .cbproj
     for directory, value in values.items():
-        path_search = os.path.join(directory, "*.cbproj")
+        path_search = os.path.join(directory, '*.cbproj')
         found = glob.glob(path_search, recursive=False)
         
         # Modificar .cbproj
@@ -107,19 +107,24 @@ def platform_changer(values: dict[str, list[str]], modify_version: bool):
             _replace_cbproj_options(f, is_64bits, modify_version, config)
 
     # Copiar DLLs
+    pattern = re.compile(r'^c:\\fuentes\\nucleo\\[^\\]+\\app$', re.IGNORECASE)
     for directory, value in values.items():
-        dll_base_path = os.path.join(directory, "App", "dlls")
+        if not pattern.match(directory):
+            continue
+        
+        dll_base_path = os.path.join(directory, 'dlls')
         if os.path.exists(dll_base_path):
             # Borrar DLLs anteriores en \App\
-            app_path = os.path.join(directory, "App")
-            for old_dll in glob.glob(os.path.join(app_path, "*.dll")):
+            app_path = os.path.join(directory)
+            for old_dll in glob.glob(os.path.join(app_path, '*.dll')):
                 try:
                     os.remove(old_dll)
-                except OSError: pass
+                except OSError:
+                    pass
 
             # Origen según plataforma
             is_64bits = (value[0] == 'w64')
-            sub_dir = "Win64" if is_64bits else "Win32"
+            sub_dir = 'Win64' if is_64bits else 'Win32'
             src_path = os.path.join(dll_base_path, sub_dir)
             
             if os.path.exists(src_path):

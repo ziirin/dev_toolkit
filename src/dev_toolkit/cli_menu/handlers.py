@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import datetime
 
+from src.dev_toolkit.modules.icons.icons import render_html_icon_list
 from src.dev_toolkit.cli_menu.validators import NotFileOrFolderValidator
 from src.dev_toolkit.modules.backup.backup import create_backup
 from src.dev_toolkit.modules.platform_changer import platform_changer
@@ -223,7 +224,21 @@ def _handle_backup(menu_path: str) -> str:
         result += f'/err?msg=Something went wrong.'
     
     return result
+
+# ========================================================================
+
+@DevTool('/inescop/:search_icons')
+def _handle_search_icons(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    update = args.get('update', 'false').lower()
     
+    icons_path = APP_CONFIG.get('global', {}).get('icons_folder', '')
+    dest_path = '//backup-fa/FA/Iconos/_icon_list.html'
+    
+    if update == 'true':
+        render_html_icon_list(dest_path, icons_path)
+        
+    return f'{BASE_PATH}/:open_browser?url=file:{dest_path}'
 
 # ========================================================================
 
