@@ -3,7 +3,7 @@ from pathlib import Path
 import datetime
 
 from src.dev_toolkit.modules.icons.icons import render_html_icon_list
-from src.dev_toolkit.cli_menu.validators import NotFileOrFolderValidator
+from src.dev_toolkit.cli_menu.validators import FileValidator, NotFileOrFolderValidator
 from src.dev_toolkit.modules.backup.backup import create_backup
 from src.dev_toolkit.modules.platform_changer import platform_changer
 from src.dev_toolkit.cli_menu.routing import DevTool
@@ -12,6 +12,7 @@ from src.dev_toolkit.cli_menu.menu import BASE_PATH, prompt
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
 from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_script
+from src.dev_toolkit.modules.encrypt.encode import encode_file_to_images
 from src.dev_toolkit.modules.tsilang.silFixer import (read_sil,
                                                       write_sil,
                                                       read_csv,
@@ -205,6 +206,21 @@ def _handle_platform_changer(menu_path: str) -> str:
 
 # ========================================================================
 
+@DevTool('/inescop/:search_icons')
+def _handle_search_icons(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    update = args.get('update', 'false').lower()
+    
+    icons_path = APP_CONFIG.get('global', {}).get('icons_folder', '')
+    dest_path = '//backup-fa/FA/Iconos/_icon_list.html'
+    
+    if update == 'true':
+        render_html_icon_list(dest_path, icons_path)
+        
+    return f'{BASE_PATH}/:open_browser?url=file:{dest_path}'
+
+# ========================================================================
+
 @DevTool('/:backup')
 def _handle_backup(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
@@ -227,18 +243,21 @@ def _handle_backup(menu_path: str) -> str:
 
 # ========================================================================
 
-@DevTool('/inescop/:search_icons')
-def _handle_search_icons(menu_path: str) -> str:
+@DevTool('/admin/:encode_file')
+def _handle_encode(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
-    update = args.get('update', 'false').lower()
+    src_file = Path(args.get('src_file', ''))
+    dst_file = Path(args.get('dst_file', src_file.parent / 'img'))
     
-    icons_path = APP_CONFIG.get('global', {}).get('icons_folder', '')
-    dest_path = '//backup-fa/FA/Iconos/_icon_list.html'
+    if not src_file.is_file():
+        src_file = prompt('File to encript', FileValidator())
     
-    if update == 'true':
-        render_html_icon_list(dest_path, icons_path)
-        
-    return f'{BASE_PATH}/:open_browser?url=file:{dest_path}'
+    try:
+        encode_file_to_images(src_file, dst_file)
+    except:
+        return f'{BASE_PATH}/err?msg=Something went wrong.'
+    
+    return f'{BASE_PATH}/success?msg=File encoded.'
 
 # ========================================================================
 

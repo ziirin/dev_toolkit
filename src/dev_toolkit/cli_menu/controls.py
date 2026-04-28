@@ -1,6 +1,7 @@
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.widgets import RadioList
 from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.data_structures import Point
 
 class CustomRadioList(RadioList):
     def __init__(self, values, default = None):
@@ -36,6 +37,8 @@ class CustomRadioList(RadioList):
         if hasattr(self, 'control') and isinstance(self.control, FormattedTextControl):
             self.control.show_cursor = False
             
+        self.control.get_cursor_position = self._get_cursor_position
+            
         
     def _get_text_fragments(self):
         result = []
@@ -60,3 +63,20 @@ class CustomRadioList(RadioList):
         result.pop()
         return result
     
+    def is_focusable(self) -> bool:
+        return True
+
+    def reset(self):
+        self._selected_index = 0
+
+    def preferred_width(self, max_width):
+        return self.control.preferred_width(max_width)
+
+    def preferred_height(self, width, max_width, line_numbers, wrap_lines):
+        return self.control.preferred_height(width, max_width, line_numbers, wrap_lines)
+
+    def create_content(self, width, height):
+        return self.control.create_content(width, height)
+    
+    def _get_cursor_position(self):
+        return Point(x=0, y=self._selected_index)

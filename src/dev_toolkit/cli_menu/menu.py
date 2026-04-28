@@ -1,11 +1,11 @@
 from pathlib import Path
 
+from prompt_toolkit.validation import Validator
 from prompt_toolkit.shortcuts import (message_dialog,
                                       button_dialog,
                                       input_dialog,
                                       clear as _clear,
                                       prompt as _prompt)
-from prompt_toolkit.validation import Validator
 
 from src.dev_toolkit.cli_menu.controls import CustomRadioList
 from src.dev_toolkit.cli_menu.validators import FileOrFolderValidator
@@ -14,8 +14,9 @@ from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
 from src.dev_toolkit.misc.util import get_args_from_path
 from prompt_toolkit.widgets import Box, Button, Dialog, Label
-from prompt_toolkit.layout import HSplit, Layout
+from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
 from prompt_toolkit.application import Application, get_app
+from prompt_toolkit.key_binding import KeyBindings
 
 # ========================================================================
 
@@ -28,13 +29,9 @@ def _get_title_from_path(menu_path: str) -> str:
     return title
 
 def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
-    allowed_tools = APP_CONFIG.get('allowed_tools', None)
-    if allowed_tools:
-        # fx = (lambda opt: opt[0].split('?')[0] in allowed_tools and MENU_ROUTING.get(opt[0].split('?')[0], None))
-        fx = (lambda opt: MENU_ROUTING.get(opt[0].split('?')[0], None))
-        filtered_opts = list(filter(fx, options))
-    else:
-        filtered_opts = options.copy()
+    fx = (lambda opt: MENU_ROUTING.get(opt[0].split('?')[0], None))
+    filtered_opts = list(filter(fx, options))
+    
     return filtered_opts
 
 def _print_simple_msg(title:str, text: str) -> str:
@@ -55,11 +52,18 @@ def _print_radiolist_menu(title: str, text: str,
         radio_list = CustomRadioList(values=options)
         exit_text = 'Exit' if title == 'DevToolkit' else 'Back'
         
+        scrollable_menu = Window(
+            content=radio_list.control,
+            height=D(max=10),
+            scroll_offsets=ScrollOffsets(top=1, bottom=1),
+            dont_extend_height=False
+        )
+        
         dialog = Dialog(
             title=title,
             body=HSplit([
                 Label(text=text, dont_extend_height=True),
-                Box(radio_list, padding=1)
+                Box(scrollable_menu, padding=1)
             ]),
             buttons=[
                 Button(text="Ok", handler=lambda: get_app().exit(result=radio_list.current_value)),
@@ -68,29 +72,25 @@ def _print_radiolist_menu(title: str, text: str,
             with_background=True
         )
         
+        global_kb = KeyBindings()
+        @global_kb.add('c-p')
+        def _(event):
+            get_app().exit(result=f'{BASE_PATH}/admin')
+        
         app = Application(
             layout=Layout(dialog),
+            key_bindings=global_kb,
             style=ONE_ATOM_THEME,
             full_screen=True,
-            mouse_support=True,
-            cursor=None
+            mouse_support=True
+            # cursor=None
         )
         
-        app.layout.focus(radio_list)
+        app.layout.focus(radio_list.control)
         
         return app.run()
     else:
         result = f'{BASE_PATH}/err?msg=No hay opciones disponibles en este menú.'
-        
-    #     result = radiolist_dialog(
-    #         title=title,
-    #         text=text,
-    #         cancel_text='Exit' if title == 'DevToolkit' else 'Back',
-    #         values=options,
-    #         style=ONE_ATOM_THEME
-    #     ).run()
-    # else:
-    #     result = f'{BASE_PATH}/err?msg=No hay opciones disponibles en este menú.'
 
     return result
 
@@ -207,6 +207,21 @@ def _print_inescop_menu(menu_path: str) -> str:
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}', 'Solydoc.'),
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.'),
         (BASE_PATH + '/inescop/:search_icons', 'Search Icons.')
+    ]
+    
+    result = _print_radiolist_menu(
+        _get_title_from_path(menu_path),
+        'Choose a tool:',
+        options
+    )
+    
+    return result
+
+@DevTool('/admin')
+def _print_admin_menu(menu_path: str) -> str:
+    options = [
+        (BASE_PATH + '/admin/:encode_file', 'Encode file.'),
+        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.')
     ]
     
     result = _print_radiolist_menu(

@@ -11,6 +11,18 @@ class NumberValidator(NoEmptyValidator):
     def validate(self, doc) -> None:
         if not str(doc.text).isnumeric():
             raise ValidationError(message='Not a number.')
+             
+class FileValidator(NoEmptyValidator):
+    def validate(self, doc) -> None:
+        super().validate(doc)
+        if not Path(doc.text).is_file():
+            raise ValidationError(message=f'File not found: "{doc.text}".')
+        
+class FolderValidator(NoEmptyValidator):
+    def validate(self, doc) -> None:
+        super().validate(doc)
+        if not Path(doc.text).is_dir():
+            raise ValidationError(message=f'Folder not found: "{doc.text}".')
                 
 class FileOrFolderValidator(NoEmptyValidator):
     def validate(self, doc) -> None:
