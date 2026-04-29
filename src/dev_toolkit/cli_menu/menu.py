@@ -120,7 +120,7 @@ def _print_err_menu(menu_path: str) -> str | None:
     args = get_args_from_path(menu_path)
     result = _print_simple_msg(
         title='DevToolkit → Error',
-        text=args.get('msg', 'Unexpected error.')
+        text=f'⚠  {args.get("msg", "Unexpected error.")}'
     )
     return (None
             if APP_CONFIG.get('close_after_err', False)
@@ -132,7 +132,7 @@ def _print_main_menu(menu_path: str) -> str | None:
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/rad', 'RAD Studio tools...'),
         (BASE_PATH + '/inescop', 'Inescop tools...'),
-        (BASE_PATH + f'/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', f'Create src folder backup.'),
+        (BASE_PATH + f'/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup.'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
     
@@ -221,7 +221,8 @@ def _print_inescop_menu(menu_path: str) -> str:
 def _print_admin_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/admin/:encode_file', 'Encode file.'),
-        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.')
+        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.'),
+        (BASE_PATH + '/:open_browser?url=mailto:jsalasand@gmail.com?subject=Hola&body=Prueba', 'Weekly report.')
     ]
     
     result = _print_radiolist_menu(
