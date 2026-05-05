@@ -1,3 +1,4 @@
+import os
 import subprocess
 import webbrowser
 from pathlib import Path
@@ -81,3 +82,15 @@ def run_exe_detached(script_path: str, args: list[str] = []) -> bool:
             return False
     except:
         return False
+    
+def run_shortcut(shortcut_path: str) -> bool:
+    try:
+        path = Path(shortcut_path)
+        if path.is_file():
+            os.startfile(str(path))
+        else:
+            return False
+    except:
+        return False
+    
+    return True

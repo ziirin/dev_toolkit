@@ -11,7 +11,7 @@ from src.dev_toolkit.misc import get_args_from_path
 from src.dev_toolkit.cli_menu.menu import BASE_PATH, prompt
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
-from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_script
+from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_script, run_shortcut
 from src.dev_toolkit.modules.encrypt.encode import encode_file_to_images
 from src.dev_toolkit.modules.tsilang.silFixer import (read_sil,
                                                       write_sil,
@@ -170,12 +170,6 @@ def _handle_platform_changer(menu_path: str) -> str:
             str(Path('c:/fuentes/nucleo/foot3d/app/pads')),
             str(Path('c:/fuentes/nucleo/icadnest/app/pads')),
             
-            str(Path('c:/fuentes/nucleo/nucleo/app/miscellaneous')),
-            str(Path('c:/fuentes/nucleo/3dplus/app/miscellaneous')),
-            str(Path('c:/fuentes/nucleo/forma3d/app/miscellaneous')),
-            str(Path('c:/fuentes/nucleo/foot3d/app/miscellaneous')),
-            str(Path('c:/fuentes/nucleo/icadnest/app/miscellaneous')),
-            
             str(Path('c:/fuentes/nucleo/nucleo/app/application')),
             str(Path('c:/fuentes/nucleo/3dplus/app/application')),
             str(Path('c:/fuentes/nucleo/forma3d/app/application')),
@@ -197,6 +191,7 @@ def _handle_platform_changer(menu_path: str) -> str:
         values = dict.fromkeys(cbproj_folders, ['w64', 'release'])
     
     if len(values) > 0:
+        print(f'Applying "{preset}" preset...')
         platform_changer(values, True)
         result =  f'{BASE_PATH}/success?msg=Platform succesfully changed.'
     else:
@@ -297,3 +292,14 @@ def _handle_run_exe_detached(menu_path: str) -> str:
     
     return result
 
+@DevTool('/:run_shortcut')
+def _handle_run_shortcut(menu_path: str) -> str:
+    args = get_args_from_path(menu_path)
+    path = args.get('path')
+    
+    if run_shortcut(path):
+        result = BASE_PATH
+    else:
+        result = f'{BASE_PATH}/err?msg=Cannout launch "{path}".'
+    
+    return result

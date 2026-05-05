@@ -1,6 +1,10 @@
 from pathlib import Path
 
 from prompt_toolkit.validation import Validator
+from prompt_toolkit.widgets import Box, Button, Dialog, Label
+from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
+from prompt_toolkit.application import Application, get_app
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import (message_dialog,
                                       button_dialog,
                                       input_dialog,
@@ -13,10 +17,6 @@ from src.dev_toolkit.cli_menu.routing import (DevTool, MENU_ROUTING, BASE_PATH)
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
 from src.dev_toolkit.misc.util import get_args_from_path
-from prompt_toolkit.widgets import Box, Button, Dialog, Label
-from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
-from prompt_toolkit.application import Application, get_app
-from prompt_toolkit.key_binding import KeyBindings
 
 # ========================================================================
 
@@ -35,14 +35,35 @@ def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
     return filtered_opts
 
 def _print_simple_msg(title:str, text: str) -> str:
-    result = button_dialog(
-        title=title,
-        text=text,
-        buttons=[('Ok', BASE_PATH)],
-        style=ONE_ATOM_THEME
-    ).run()
+    kb = KeyBindings()
     
-    return result
+    @kb.add('right')
+    def _(event):
+        event.app.exit(result=BASE_PATH)
+    
+    ok_button = Button(
+        text='Ok',
+        handler=lambda: get_app().exit(result=BASE_PATH)
+    )
+    
+    dialog = Dialog(
+        title=title,
+        body=HSplit([
+            Label(text=text)
+        ]),
+        buttons=[ok_button],
+        with_background=True
+    )
+    
+    app = Application(
+        layout=Layout(dialog),
+        key_bindings=kb,
+        style=ONE_ATOM_THEME,
+        full_screen=True,
+        mouse_support=True
+    )
+    
+    return app.run()
 
 def _print_radiolist_menu(title: str, text: str,
                           options: list[tuple[str, str]]) -> str:
@@ -95,8 +116,8 @@ def _print_radiolist_menu(title: str, text: str,
     return result
 
 def _print_text_input(title: str, text: str,
-                 default: str = '',
-                 validator: Validator | None = None) -> str:
+                      default: str = '',
+                      validator: Validator | None = None) -> str:
     return input_dialog(
         title=title,
         text=text,
@@ -206,6 +227,7 @@ def _print_inescop_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}', 'Solydoc.'),
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.'),
+        (BASE_PATH + f'/:run_shortcut?path={APP_PATHS.get("CREATE_INSTALLERS", "")}', 'Create installers.'),
         (BASE_PATH + '/inescop/:search_icons', 'Search Icons.')
     ]
     
@@ -281,13 +303,15 @@ def resolve_path(menu_path: str = BASE_PATH) -> str | None:
             # This avoids infinite pile of calls
             if result == BASE_PATH:
                 default_result = BASE_PATH
-                is_success_path = menu_path.startswith(BASE_PATH + '/success')
-                is_err_path = menu_path.startswith(BASE_PATH + '/err')
+                is_success_path = menu_path.startswith(BASE_PATH + '/success?')
+                is_err_path = menu_path.startswith(BASE_PATH + '/err?')
                 
                 if is_success_path and APP_CONFIG.get('close_after_success', False):
                     default_result = None
                 if is_err_path and APP_CONFIG.get('close_after_err', False):
                     default_result = None
+                if default_result:
+                    _clear()
                     
                 return default_result
             
