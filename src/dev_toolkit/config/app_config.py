@@ -30,14 +30,14 @@ APP_PATHS = {
     'CLEAN_RAD': str(BASE_DIR / 'assets' / 'scripts' / 'clean_rad.ps1'),
     'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
     'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'save_sils.exe'),
+    'SOLYDOC': str(Path('C:/BDINESCOP/Programas/SOLYDOC/solydoc.exe')),
+    'GESPRO': str(Path('C:/BDINESCOP/Programas/GESPRO/GestionProyectos.exe')),
     'CREATE_INSTALLERS': str(BASE_DIR / 'assets' / 'scripts' / 'create_installers.lnk'),
-    'CALCULAHORA': 'https://tickets.inescop.es/horas.html',
     'TICKET_PLATFORM': 'https://tickets.inescop.es/scp/index.php',
+    'CALCULAHORA': 'https://tickets.inescop.es/horas.html',
     'CHAT_GPT': 'https://chatgpt.com/?temporary-chat=true',
     'GEMINI': 'https://gemini.google.com/app',
-    'CLAUDE': 'https://claude.ai/new',
-    'SOLYDOC': str(Path('C:/BDINESCOP/Programas/SOLYDOC/solydoc.exe')),
-    'GESPRO': str(Path('C:/BDINESCOP/Programas/GESPRO/GestionProyectos.exe'))
+    'CLAUDE': 'https://claude.ai/new'
 }
 
 def load_config() -> None:

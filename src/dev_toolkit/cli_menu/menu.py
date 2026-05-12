@@ -6,7 +6,6 @@ from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
 from prompt_toolkit.application import Application, get_app
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.shortcuts import (message_dialog,
-                                      button_dialog,
                                       input_dialog,
                                       clear as _clear,
                                       prompt as _prompt)
@@ -260,9 +259,9 @@ def _print_common_links_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("TICKET_PLATFORM", "")}', 'Ticket platform.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Calculahora®.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'IA: ChatGPT.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("GEMINI", "")}', 'IA: Gemini.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'IA: Claude.')
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'AI: ChatGPT.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("GEMINI", "")}', 'AI: Gemini.'),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'AI: Claude.')
     ]
     
     result = _print_radiolist_menu(

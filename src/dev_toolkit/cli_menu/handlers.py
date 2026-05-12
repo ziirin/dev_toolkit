@@ -54,7 +54,6 @@ def _handle_sil2csv(menu_path: str) -> str:
         else:
             result += f'/err?msg=Error at input or output path.'
         
-
     return result
 
 @DevTool('/tsilang/:csv2sil')
@@ -108,12 +107,12 @@ def _handle_load_sil(menu_path: str) -> str:
 @DevTool('/tsilang/:save')
 def _handle_save_sil(menu_path: str) -> str:
     projects = [
-        r'c:\Fuentes\Nucleo\ShoeData'
-        r'c:\Fuentes\Nucleo\Nucleo',
-        r'c:\Fuentes\Nucleo\3DPlus',
-        r'c:\Fuentes\Nucleo\Forma3D',
-        r'c:\Fuentes\Nucleo\Foot3D',
-        r'c:\Fuentes\Nucleo\ICadNest'
+        str(Path('c:/Fuentes/Nucleo/ShoeData')),
+        str(Path('c:/Fuentes/Nucleo/Nucleo')),
+        str(Path('c:/Fuentes/Nucleo/3DPlus')),
+        str(Path('c:/Fuentes/Nucleo/Forma3D')),
+        str(Path('c:/Fuentes/Nucleo/Foot3D')),
+        str(Path('c:/Fuentes/Nucleo/ICadNest'))
     ]
     
     success = True
