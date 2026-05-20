@@ -33,7 +33,7 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
         '    </style>',
         '    <script>',
         '        function copyToClipboard(element) {',
-        '            const text = element.querySelector(".filename").innerText;',
+        f'            const text = "{icons_path}" + "/" + element.querySelector(".filename").innerText;',
         '            navigator.clipboard.writeText(text).then(() => {',
         '                console.log("Copiado: " + text);',
         '                // Opcional: feedback visual simple',
@@ -63,7 +63,7 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
         # Añadimos el evento onclick que llama a la función JS
         html.append('<td onclick="copyToClipboard(this)">')
         html.append(f'<img src="{svg}" class="svg-icon" alt="{Path(svg).name}">')
-        html.append(f'<div class="filename">{Path(svg).name}</div>')
+        html.append(f'<div class="filename">{Path(svg).relative_to(Path(icons_path))}</div>')
         html.append('</td>')
         count += 1
         

@@ -24,6 +24,8 @@ def _get_title_from_path(menu_path: str) -> str:
     title_array.pop(0)
     if len(title_array) > 0 and title_array[0] == 'devtoolkit':
         title_array[0] = 'DevToolkit'
+        
+    title_array = [n.capitalize().replace('_', ' ') for n in title_array]
     title = ' → '.join(title_array)
     return title
 
@@ -74,7 +76,7 @@ def _print_radiolist_menu(title: str, text: str,
         
         scrollable_menu = Window(
             content=radio_list.control,
-            height=D(max=10),
+            height=D(max=5),
             scroll_offsets=ScrollOffsets(top=1, bottom=1),
             dont_extend_height=False
         )
@@ -242,8 +244,7 @@ def _print_inescop_menu(menu_path: str) -> str:
 def _print_admin_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/admin/:encode_file', 'Encode file.'),
-        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.'),
-        (BASE_PATH + '/:open_browser?url=mailto:jsalasand@gmail.com?subject=Hola&body=Prueba', 'Weekly report.')
+        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.')
     ]
     
     result = _print_radiolist_menu(
@@ -257,6 +258,7 @@ def _print_admin_menu(menu_path: str) -> str:
 @DevTool('/common_links')
 def _print_common_links_menu(menu_path: str) -> str:
     options = [
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("ICAD_WORKSPACE", "")}', 'ICad Workspace.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("TICKET_PLATFORM", "")}', 'Ticket platform.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Calculahora®.'),
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'AI: ChatGPT.'),
