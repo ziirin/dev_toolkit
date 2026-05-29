@@ -5,8 +5,7 @@ from prompt_toolkit.widgets import Box, Button, Dialog, Label
 from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
 from prompt_toolkit.application import Application, get_app
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.shortcuts import (message_dialog,
-                                      input_dialog,
+from prompt_toolkit.shortcuts import (input_dialog,
                                       clear as _clear,
                                       prompt as _prompt)
 
@@ -66,10 +65,11 @@ def _print_simple_msg(title:str, text: str) -> str:
     
     return app.run()
 
-def _print_radiolist_menu(title: str, text: str,
-                          options: list[tuple[str, str]]) -> str:
+def print_radiolist_menu(title: str, text: str,
+                          options: list[tuple[str, str]], filter_options: bool = False) -> str:
     result = None
-    options = _filter_options(options)
+    if filter_options:
+        options = _filter_options(options)
     if len(options) > 0:
         radio_list = CustomRadioList(values=options)
         exit_text = 'Exit' if title == 'DevToolkit' else 'Back'
@@ -153,12 +153,12 @@ def _print_main_menu(menu_path: str) -> str | None:
     options = [
         (BASE_PATH + '/tsilang', 'Tsilang tools...'),
         (BASE_PATH + '/rad', 'RAD Studio tools...'),
+        (BASE_PATH + '/git', 'Git...'),
         (BASE_PATH + '/inescop', 'Inescop tools...'),
-        (BASE_PATH + f'/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup.'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
     
-    return _print_radiolist_menu(
+    return print_radiolist_menu(
         _get_title_from_path(menu_path),
         'Choose a tool:',
         options
@@ -175,7 +175,7 @@ def _print_tsilang_menu(menu_path: str) -> str:
     ]
     
     title = _get_title_from_path(menu_path)
-    result = _print_radiolist_menu(
+    result = print_radiolist_menu(
         title,
         'Choose an option:',
         options
@@ -217,11 +217,27 @@ def _print_rad_menu(menu_path: str) -> str:
     ]
     
     title = _get_title_from_path(menu_path)
-    return _print_radiolist_menu(
+    return print_radiolist_menu(
         title,
         'Choose an option:',
         options
     )
+
+@DevTool('/git')
+def _print_git_menu(menu_path: str) -> str:
+    options = [
+        (BASE_PATH + '/git/:stash_apply', 'Apply stash changes.'),
+        (BASE_PATH + '/git/:stash_save', 'Stash changes.'),
+        (BASE_PATH + '/git/:discard', 'Discard changes.')
+    ]
+    
+    result = print_radiolist_menu(
+        _get_title_from_path(menu_path),
+        'Choose a tool:',
+        options
+    )
+    
+    return result
 
 @DevTool('/inescop')
 def _print_inescop_menu(menu_path: str) -> str:
@@ -229,10 +245,11 @@ def _print_inescop_menu(menu_path: str) -> str:
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}', 'Solydoc.'),
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.'),
         (BASE_PATH + f'/:run_shortcut?path={APP_PATHS.get("CREATE_INSTALLERS", "")}', 'Create installers.'),
+        (BASE_PATH + f'/inescop/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup.'),
         (BASE_PATH + '/inescop/:search_icons', 'Search Icons.')
     ]
     
-    result = _print_radiolist_menu(
+    result = print_radiolist_menu(
         _get_title_from_path(menu_path),
         'Choose a tool:',
         options
@@ -247,7 +264,7 @@ def _print_admin_menu(menu_path: str) -> str:
         (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.')
     ]
     
-    result = _print_radiolist_menu(
+    result = print_radiolist_menu(
         _get_title_from_path(menu_path),
         'Choose a tool:',
         options
@@ -266,7 +283,7 @@ def _print_common_links_menu(menu_path: str) -> str:
         (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'AI: Claude.')
     ]
     
-    result = _print_radiolist_menu(
+    result = print_radiolist_menu(
         _get_title_from_path(menu_path),
         'Select a link:',
         options
@@ -328,6 +345,5 @@ def resolve_path(menu_path: str = BASE_PATH) -> str | None:
             return None if len(splitted_path[:-1]) == 1 else back_path
 
     else:
-        message_dialog('Error', f'Path "{menu_path}" not found.',
-                       style=ONE_ATOM_THEME).run()
+        resolve_path(f'{BASE_PATH}/err?msg=Path "{menu_path}" not found.')
         return None

@@ -1,17 +1,18 @@
 import os
 from pathlib import Path
 import datetime
+import subprocess
 
 from src.dev_toolkit.modules.icons.icons import render_html_icon_list
-from src.dev_toolkit.cli_menu.validators import FileValidator, NotFileOrFolderValidator
+from src.dev_toolkit.cli_menu.validators import BoolValidator, FileValidator, NotFileOrFolderValidator
 from src.dev_toolkit.modules.backup.backup import create_backup
 from src.dev_toolkit.modules.platform_changer import platform_changer
 from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.misc import get_args_from_path
-from src.dev_toolkit.cli_menu.menu import BASE_PATH, prompt
+from src.dev_toolkit.cli_menu.menu import BASE_PATH, print_radiolist_menu, prompt
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
-from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_script, run_shortcut
+from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_command, run_ps_script, run_shortcut
 from src.dev_toolkit.modules.encrypt.encode import encode_file_to_images
 from src.dev_toolkit.modules.tsilang.silFixer import (read_sil,
                                                       write_sil,
@@ -200,6 +201,73 @@ def _handle_platform_changer(menu_path: str) -> str:
 
 # ========================================================================
 
+@DevTool('/git/:stash_apply')
+def _handle_stash_apply(menu_path: str) -> str:
+    repo_path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
+    result = subprocess.run(
+        ['git', '-C', repo_path, 'stash', 'list'],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    
+    strip_result = result.stdout.strip()
+    stashes = strip_result.split('\n') if strip_result else []
+    stash_options = []
+    for (i, stash) in enumerate(stashes):
+        stash_options.append((
+            'stash@{' + str(i) + '}',
+            stash[stash.find('}') + 3:]
+        ))
+    
+    stash_selected = print_radiolist_menu(
+        'Stash pop',
+        'Select the stash to pop',
+        stash_options
+    )
+    
+    run_ps_command([
+        'git',
+        '-C', f'"{repo_path}"',
+        'stash',
+        'pop', f'"{stash_selected}"'
+    ])
+    
+    return f'{BASE_PATH}/success?msg=Stash popped successfully.'
+
+@DevTool('/git/:stash_save')
+def _handle_stash_save(menu_path: str) -> str:
+    repo_path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    run_ps_command([
+        'git',
+        '-C', f'"{repo_path}"',
+        'stash',
+        'save', f'"DevToolkit stash ({timestamp})"',
+        '-u'
+    ])
+        
+    return f'{BASE_PATH}/success?msg=Stash created successfully.'
+
+@DevTool('/git/:discard')
+def _handle_discard(menu_path: str) -> str:
+    confirmRes = prompt('Do you want to discard ALL changes', validator=BoolValidator(), placeholder='(y/n)')
+    
+    if confirmRes in BoolValidator.TRUE_VALUES:
+        repo_path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
+        
+        cmd = f'git -C "{repo_path}" restore .'
+        run_ps_command(cmd.split(' '))
+        
+        cmd = f'git -C "{repo_path}" clean -fd'
+        run_ps_command(cmd.split(' '))
+        
+        return f'{BASE_PATH}/success?msg=Changes discarted successfully.'
+    
+    return BASE_PATH    
+
+# ========================================================================
+
 @DevTool('/inescop/:search_icons')
 def _handle_search_icons(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
@@ -213,9 +281,7 @@ def _handle_search_icons(menu_path: str) -> str:
         
     return f'{BASE_PATH}/:open_browser?url=file:{dest_path}'
 
-# ========================================================================
-
-@DevTool('/:backup')
+@DevTool('/inescop/:backup')
 def _handle_backup(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
     src_folder = args.get('src_folder', APP_CONFIG.get('global', {}).get('main_src_folder', ''))

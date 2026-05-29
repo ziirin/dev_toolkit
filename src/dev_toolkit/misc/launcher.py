@@ -30,6 +30,26 @@ def run_ps_script(script_path: str) -> bool:
     except:
         return False
     
+def run_ps_command(command: list[str]) -> bool:
+    try:
+        if command:
+            process = subprocess.Popen(
+                ['powershell.exe'] + command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+            
+            for line in process.stdout:
+                print(f'[PS1]: {line.strip()}')
+            process.wait()
+            return (process.returncode == 0)
+        else:
+            return False
+    except:
+        return False
+    
 def run_bat_script(script_path: str) -> bool:
     try:
         if Path(script_path).is_file():
