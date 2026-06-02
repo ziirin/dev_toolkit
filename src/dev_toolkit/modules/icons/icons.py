@@ -16,6 +16,7 @@ def _get_svg_files(path: str) -> list[str]:
 
 def render_html_icon_list(dest_path: str, icons_path: str) -> None:
     svg_files = _get_svg_files(icons_path)
+    icons_path_to_copy = str(Path(icons_path)).replace('\\', '\\\\') + '\\\\'
     html = [
         '<!DOCTYPE html>',
         '<html>',
@@ -33,7 +34,7 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
         '    </style>',
         '    <script>',
         '        function copyToClipboard(element) {',
-        f'            const text = "{icons_path}" + "/" + element.querySelector(".filename").innerText;',
+        f'           const text = "{icons_path_to_copy}" + element.querySelector(".filename").innerText;',
         '            navigator.clipboard.writeText(text).then(() => {',
         '                console.log("Copiado: " + text);',
         '                // Opcional: feedback visual simple',
@@ -45,7 +46,7 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
         '    </script>',
         '</head>',
         '<body>',
-        f'    <h1>Archivos SVG en el directorio "{icons_path}"</h1>',
+        f'    <h1>Archivos SVG en el directorio "{Path(icons_path)}"</h1>',
         f'    <h4>{len(svg_files)} archivos encontrados.</h4>',
         f'    <h4>Fecha de actualización: [{datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}]</h4>',
         '    <hr/>',
