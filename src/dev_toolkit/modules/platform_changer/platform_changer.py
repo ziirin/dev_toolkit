@@ -87,7 +87,7 @@ def _replace_cbproj_options(file_path, is_64bits, modify_version, config):
                     sub_proc = ET.SubElement(property_group, f"{{{namespace}}}SubProcessesNumber")
                 sub_proc.text = str(os.cpu_count() or 1)
 
-        tree.write(file_path, encoding="utf-8", xml_declaration=True)
+        tree.write(file_path, encoding="utf-8", xml_declaration=False)
         return True
 
     except Exception as e:

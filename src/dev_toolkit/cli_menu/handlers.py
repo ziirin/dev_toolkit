@@ -182,13 +182,13 @@ def _handle_platform_changer(menu_path: str) -> str:
             str(Path('c:/fuentes/nucleo/icadnest/app')),
         ]
         
-        values = dict.fromkeys(cbproj_folders, ['w32', 'release'])
+        values = dict.fromkeys(cbproj_folders, ['w32', 'Release'])
         for value in values:
             if value.lower() in debug_projects:
-                values[value] = ['w32', 'debug']
+                values[value] = ['w32', 'Debug']
         
     elif preset == 'release':
-        values = dict.fromkeys(cbproj_folders, ['w64', 'release'])
+        values = dict.fromkeys(cbproj_folders, ['w64', 'Release'])
     
     if len(values) > 0:
         print(f'Applying "{preset}" preset...')
