@@ -3,16 +3,17 @@ from pathlib import Path
 from prompt_toolkit.validation import Validator
 from prompt_toolkit.widgets import Box, Button, Dialog, Label
 from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
+from prompt_toolkit.layout.processors import PasswordProcessor
 from prompt_toolkit.application import Application, get_app
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.shortcuts import (input_dialog,
+from prompt_toolkit.shortcuts import (PromptSession, input_dialog,
                                       clear as _clear,
                                       prompt as _prompt)
 
 from src.dev_toolkit.cli_menu.controls import CustomRadioList
 from src.dev_toolkit.cli_menu.validators import FileOrFolderValidator
 from src.dev_toolkit.cli_menu.routing import (DevTool, MENU_ROUTING, BASE_PATH)
-from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
+from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS, decode_PK
 from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
 from src.dev_toolkit.misc.util import get_args_from_path
 
@@ -213,7 +214,7 @@ def _print_rad_menu(menu_path: str) -> str:
         (BASE_PATH + '/rad/:platform_changer?preset=debug', 'Platform changer: w32 Debug.'),
         (BASE_PATH + '/rad/:platform_changer?preset=release', 'Platform changer: w64 Release.'),
         (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("KILL_RAD")}', 'Kill TwineCompile subprocesses.'),
-        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("CLEAN_RAD")}', 'Clean temporal files.')
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("CLEAN_RAD")}', 'Clean temporal files and folders.')
     ]
     
     title = _get_title_from_path(menu_path)
@@ -226,8 +227,8 @@ def _print_rad_menu(menu_path: str) -> str:
 @DevTool('/git')
 def _print_git_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/git/:stash_apply', 'Apply stash changes.'),
         (BASE_PATH + '/git/:stash_save', 'Stash changes.'),
+        (BASE_PATH + '/git/:stash_bring_back', 'Bring back changes.'),
         (BASE_PATH + '/git/:discard', 'Discard changes.')
     ]
     
@@ -241,9 +242,15 @@ def _print_git_menu(menu_path: str) -> str:
 
 @DevTool('/inescop')
 def _print_inescop_menu(menu_path: str) -> str:
+    password_params = ''
+    encoded_pass = APP_CONFIG.get('passwords', {}).get('inescop')
+    if encoded_pass:
+        password = decode_PK(encoded_pass)
+        password_params = f'&auto_type="{password}"&auto_enter=True'
+    
     options = [
-        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}', 'Solydoc.'),
-        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}', 'Gespro.'),
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}{password_params}', 'Solydoc.'),
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}{password_params}', 'Gespro.'),
         (BASE_PATH + f'/:run_shortcut?path={APP_PATHS.get("CREATE_INSTALLERS", "")}', 'Create installers.'),
         (BASE_PATH + f'/inescop/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup.'),
         (BASE_PATH + '/inescop/:search_icons', 'Search Icons.')
@@ -260,8 +267,9 @@ def _print_inescop_menu(menu_path: str) -> str:
 @DevTool('/admin')
 def _print_admin_menu(menu_path: str) -> str:
     options = [
+        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.'),
+        (BASE_PATH + '/admin/:add_password', 'Add password.'),
         (BASE_PATH + '/admin/:encode_file', 'Encode file.'),
-        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.')
     ]
     
     result = print_radiolist_menu(
@@ -296,15 +304,22 @@ def _print_common_links_menu(menu_path: str) -> str:
 def prompt(msg: str, validator: Validator | None = None,
            placeholder: str | None = None,
            default: str | None = None,
+           is_password: bool | None = None,
            clear = True) -> str:
     if clear:
         _clear()
-    return _prompt(f'> {msg}: ',
-                  validator=validator,
-                  validate_while_typing=(validator != None),
-                  placeholder=placeholder,
-                  default=default if default else '',
-                  style=ONE_ATOM_THEME)
+    input_processors = []
+    if is_password:
+        input_processors.append(PasswordProcessor(char='•'))
+        
+    session = PromptSession(input_processors=input_processors)
+    return session.prompt(f'> {msg}: ',
+                          validator=validator,
+                          validate_while_typing=(validator != None),
+                          placeholder=placeholder,
+                          default=default if default else '',
+                          is_password=is_password,
+                          style=ONE_ATOM_THEME)
 
 def resolve_path(menu_path: str = BASE_PATH) -> str | None:
     if menu_path.endswith('/'):

@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from pathlib import Path
+from cryptography.fernet import Fernet
 
 if getattr(sys, 'frozen', False):
     # Used from .exe file
@@ -13,6 +14,8 @@ else:
 # Path to config.json
 CONFIG_FILE = str(BASE_DIR / 'assets' / 'config.json')
 
+PRIVATE_KEY = 'zaUBKH8mXWBVQmKEneKHJUwqqG5o80htsHop74VV0Sg='
+
 # This is the default configuration
 # This configuration can be changed using config.json
 APP_CONFIG = {
@@ -22,6 +25,8 @@ APP_CONFIG = {
         'main_src_folder': 'c:/fuentes/nucleo',
         'backup_folder': 'd:/backup',
         'icons_folder': '//backup-fa/FA/Iconos'
+    },
+    'passwords': {
     }
 }
 
@@ -46,3 +51,16 @@ def load_config() -> None:
     if os.path.isfile(CONFIG_FILE):
         with open(CONFIG_FILE, 'r', encoding='utf-8') as config_file:
             APP_CONFIG |= json.load(config_file)
+            
+def save_config() -> None:
+    global APP_CONFIG
+    with open(CONFIG_FILE, 'w', encoding='utf-8') as config_file:
+        json.dump(APP_CONFIG, config_file, ensure_ascii=False, indent=2)
+        
+def encode_PK(data: str) -> str:
+    cypher_suite = Fernet(PRIVATE_KEY)
+    return cypher_suite.encrypt(data.encode()).decode()
+
+def decode_PK(data: str) -> str:
+    cypher_suite = Fernet(PRIVATE_KEY)
+    return cypher_suite.decrypt(data.encode()).decode()

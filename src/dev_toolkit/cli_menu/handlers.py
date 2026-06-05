@@ -1,7 +1,7 @@
 import os
-from pathlib import Path
 import datetime
 import subprocess
+from pathlib import Path
 
 from src.dev_toolkit.modules.icons.icons import render_html_icon_list
 from src.dev_toolkit.cli_menu.validators import BoolValidator, FileValidator, NotFileOrFolderValidator
@@ -10,7 +10,7 @@ from src.dev_toolkit.modules.platform_changer import platform_changer
 from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.misc import get_args_from_path
 from src.dev_toolkit.cli_menu.menu import BASE_PATH, print_radiolist_menu, prompt
-from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS
+from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS, encode_PK, save_config
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
 from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_command, run_ps_script, run_shortcut
 from src.dev_toolkit.modules.encrypt.encode import encode_file_to_images
@@ -201,8 +201,8 @@ def _handle_platform_changer(menu_path: str) -> str:
 
 # ========================================================================
 
-@DevTool('/git/:stash_apply')
-def _handle_stash_apply(menu_path: str) -> str:
+@DevTool('/git/:stash_bring_back')
+def _handle_stash_bring_back(menu_path: str) -> str:
     repo_path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
     result = subprocess.run(
         ['git', '-C', repo_path, 'stash', 'list'],
@@ -303,6 +303,21 @@ def _handle_backup(menu_path: str) -> str:
 
 # ========================================================================
 
+@DevTool('/admin/:add_password')
+def _handle_add_password(menu_path: str) -> str:
+    name = prompt('Name')
+    password = prompt('Password', clear=False, is_password=True)
+    encrypted_pass = encode_PK(password)
+    
+    aux_dict = APP_CONFIG.get('passwords')
+    if not aux_dict:
+        APP_CONFIG['passwords'] = {}
+    
+    APP_CONFIG['passwords'][name] = encrypted_pass
+    save_config()
+    
+    return BASE_PATH
+
 @DevTool('/admin/:encode_file')
 def _handle_encode(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
@@ -349,9 +364,19 @@ def _handle_run_ps_script(menu_path: str) -> str:
 def _handle_run_exe_detached(menu_path: str) -> str:
     args = get_args_from_path(menu_path)
     path = args.get('path')
+    auto_type = args.get('auto_type')
+    auto_enter = args.get('auto_enter') == 'True'
     
     if run_exe_detached(path):
         result = BASE_PATH
+        if auto_type:
+            import pyautogui
+            import time
+            time.sleep(1.5)
+            pyautogui.write(auto_type)
+            if auto_enter:
+                pyautogui.press('enter')
+    
     else:
         result = f'{BASE_PATH}/err?msg=Cannout launch "{path}".'
     
