@@ -46,14 +46,15 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
             margin: 20px 0 30px 0;
         }
 
-        table, tbody, tr {
+        .grid-container {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             width: 100%;
+            justify-content: flex-start;
         }
 
-        td {
+        .icon-card {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -62,21 +63,22 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
             border: 1px solid #e1e8ed;
             border-radius: 8px;
             padding: 15px;
-            width: 120px;
+            flex: 1 1 120px;
+            max-width: 160px;
             height: 130px;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
             transition: all 0.2s ease-in-out;
         }
 
-        td:hover {
+        .icon-card:hover {
             background-color: #ffffff;
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             border-color: #3498db;
         }
 
-        td:active {
+        .icon-card:active {
             transform: translateY(-1px);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
@@ -99,6 +101,75 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
             width: 100%;
             line-height: 1.2;
             pointer-events: none;
+        }
+        
+        .fixed-tools {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: #ffffff;
+            border: 2px solid #3498db; /* Borde de color de énfasis */
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2); /* Sombra con un toque azul */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+            min-width: 220px;
+        }
+
+        .fixed-tools h5 {
+            margin: 0 0 4px 0;
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fixed-tools div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .fixed-tools hr {
+            border: 0;
+            height: 1px;
+            background-color: #e1e8ed;
+            margin: 4px 0;
+        }
+        
+        .fixed-tools button {
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset {
+            border: 1px solid #dcdde1;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .btn-reset:hover {
+            background-color: #e1e8ed;
+        }
+
+        .btn-scroll {
+            border: none;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #ffffff;
+        }
+
+        .btn-scroll:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
         }
     """
     
@@ -124,24 +195,45 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
     
     filter_script = """
         function filterIconsByTagColor(hexColor) {
-            const cells = document.querySelectorAll('td');
+            const cells = document.querySelectorAll('.icon-card');
             const targetColor = hexColor.toLowerCase();
 
             cells.forEach(cell => {
                 const tags = cell.getAttribute('data-tags') ? cell.getAttribute('data-tags').toLowerCase() : '';
                 
                 if (tags.includes(targetColor)) {
-                    cell.style.display = ''; // Muestra el icono si coincide
+                    cell.style.display = 'flex'; // Mantiene el formato flex original al mostrarse
                 } else {
-                    cell.style.display = 'none'; // Lo oculta si no coincide
+                    cell.style.display = 'none';
                 }
             });
         }
 
         function resetColorFilter() {
             document.getElementById('colorPicker').value = '#000000';
-            const cells = document.querySelectorAll('td');
-            cells.forEach(cell => cell.style.display = '');
+            const cells = document.querySelectorAll('.icon-card');
+            cells.forEach(cell => cell.style.display = 'flex');
+        }
+        
+        function togglePanel(collapse) {
+            const content = document.getElementById('panelContent');
+            const btnFold = document.getElementById('btnFold');
+            const btnUnfold = document.getElementById('btnUnfold');
+            const panel = document.getElementById('fixedToolsPanel');
+
+            if (collapse) {
+                content.style.display = 'none';
+                btnFold.style.display = 'none';
+                btnUnfold.style.display = 'block';
+                panel.style.minWidth = 'auto';
+                panel.style.padding = '10px';
+            } else {
+                content.style.display = 'flex';
+                btnFold.style.display = 'block';
+                btnUnfold.style.display = 'none';
+                panel.style.minWidth = '220px';
+                panel.style.padding = '20px';
+            }
         }
     """
     
@@ -164,35 +256,39 @@ def render_html_icon_list(dest_path: str, icons_path: str) -> None:
         f'   <h4>{len(svg_files)} archivos encontrados.</h4>',
         f'   <h4>Fecha de actualización: [{datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}]</h4>',
         '    <hr/>',
-        '    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-family: sans-serif;">',
-        '       <label for="colorPicker" style="font-size: 14px; color: #333; cursor: pointer;">Buscar por color:</label>',
-        '       <input type="color" id="colorPicker" onchange="filterIconsByTagColor(this.value)" style="border: 1px solid #ccc; width: 40px; height: 30px; cursor: pointer; padding: 0; background: none;">',
-        '       <button onclick="resetColorFilter()" style="padding: 6px 12px; font-size: 13px; cursor: pointer;">Mostrar todos</button>',
+        '    <div class="fixed-tools" id="fixedToolsPanel">',
+        '       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; width: 100%;">',
+        '           <h5 style="margin: 0;">Panel de Filtros</h5>',
+        '           <button onclick="togglePanel(true)" id="btnFold" style="padding: 2px 6px; font-size: 11px; cursor: pointer; border: 1px solid #dcdde1; background: #f8f9fa; border-radius: 4px;">▼ Plegar</button>',
+        '       </div>',
+        '       <div id="panelContent" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">',
+        '           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">',
+        '               <label for="colorPicker" style="font-size: 13px; color: #57606f; font-weight: 500; cursor: pointer;">Filtrar por color:</label>',
+        '               <input type="color" id="colorPicker" onchange="filterIconsByTagColor(this.value)" style="border: 1px solid #ccc; width: 45px; height: 32px; cursor: pointer; padding: 0; background: none; border-radius: 4px;">',
+        '           </div>',
+        '           <button class="btn-reset" onclick="resetColorFilter()">Mostrar todos</button>',
+        '           <hr/>',
+        '           <button class="btn-scroll" onclick="window.scrollTo({top: 0, behavior: \'smooth\'})">▲ Volver arriba</button>',
+        '       </div>',
+        '       <button onclick="togglePanel(false)" id="btnUnfold" style="display: none; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: #3498db; color: white; border-radius: 6px; width: 100%;">☰ Abrir Filtros</button>',
         '    </div>',
-        '    <table>',
-        '        <tr>'
+        '    <div class="grid-container">'
     ]
     
-    cols_per_row = 6
-    count = 0
-    
     for svg in svg_files:
-        if count > 0 and count % cols_per_row == 0:
-            html.append('</tr><tr>')
-        
         color_list = []
+        
         with open(svg, 'r') as f:
             svg_content = f.read()
             color_list = extract_hex_colors(svg_content)
             
         color_list_str = ', '.join(color_list)
-        html.append(f'<td onclick="copyToClipboard(this)" data-tags="{color_list_str}">')
-        html.append(f'<img src="{svg}" class="svg-icon" alt="{Path(svg).name}">')
-        html.append(f'<div class="filename">{Path(svg).relative_to(Path(icons_path))}</div>')
-        html.append('</td>')
-        count += 1
-        
-    html.append('</tr></table></body></html>')
+        html.append(f'    <div class="icon-card" onclick="copyToClipboard(this)" data-tags="{color_list_str}">')
+        html.append(f'        <img src="{svg}" class="svg-icon" alt="{Path(svg).name}">')
+        html.append(f'        <div class="filename">{Path(svg).relative_to(Path(icons_path))}</div>')
+        html.append('    </div>')
+    
+    html.append('    </div>\n</body>\n</html>')
     
     with open(dest_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(html))

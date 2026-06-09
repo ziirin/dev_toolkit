@@ -1,15 +1,17 @@
 import os
 import datetime
 import subprocess
+from uuid import uuid4
 from pathlib import Path
 
+from src.dev_toolkit.cli_menu.validators import BoolValidator, FileValidator, NoEmptyValidator, NotFileOrFolderValidator, NumberValidator, TaskNameValidator
+from src.dev_toolkit.cli_menu.routing import DevTool
+from src.dev_toolkit.cli_menu.menu import BASE_PATH, print_radiolist_menu, prompt
+from src.dev_toolkit.modules.tasks.tasks import render_task_md
 from src.dev_toolkit.modules.icons.icons import render_html_icon_list
-from src.dev_toolkit.cli_menu.validators import BoolValidator, FileValidator, NotFileOrFolderValidator
 from src.dev_toolkit.modules.backup.backup import create_backup
 from src.dev_toolkit.modules.platform_changer import platform_changer
-from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.misc import get_args_from_path
-from src.dev_toolkit.cli_menu.menu import BASE_PATH, print_radiolist_menu, prompt
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS, encode_PK, save_config
 from src.dev_toolkit.modules.tsilang.clear_translations import remove_translation_data
 from src.dev_toolkit.misc.launcher import open_url, run_bat_script, run_exe_detached, run_exe_script, run_ps_command, run_ps_script, run_shortcut
@@ -303,20 +305,159 @@ def _handle_backup(menu_path: str) -> str:
 
 # ========================================================================
 
+@DevTool('/task_manager/:render_task_md')
+def _handle_render_task_md(menu_path: str) -> str:
+    if not APP_CONFIG.get('tasks'):
+        APP_CONFIG['tasks'] = []
+    
+    filename = Path(f'{APP_PATHS.get("TASKS_MD_FILE", "tmp.md")}').absolute()
+    md_content = render_task_md(APP_CONFIG.get('tasks', []))
+    with open(filename, 'w', encoding='utf-8') as md_file:
+        md_file.write(md_content)
+    
+    open_url(f'file://{filename}')
+    # if filename.exists():
+    #     filename.unlink()
+        
+    return BASE_PATH
+
+@DevTool('/task_manager/:add_task')
+def _handle_add_task(menu_path: str) -> str:
+    name = prompt('Name', validator=TaskNameValidator())
+    ticket = prompt('Ticket #', validator=NumberValidator() ,clear=False)
+    description = prompt('Description', clear=False)
+    
+    if not APP_CONFIG.get('tasks'):
+        APP_CONFIG['tasks'] = []
+    
+    APP_CONFIG['tasks'].append({
+        'name': name,
+        'ticket': ticket,
+        'description': description,
+        'notes': [],
+        'addition_date': datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+        'done': ''
+    })
+    save_config()
+    
+    return f'{BASE_PATH}/success?msg=Task "{name}" added.'
+
+@DevTool('/task_manager/:add_note')
+def _handle_add_note(menu_path: str) -> str:
+    if not APP_CONFIG.get('tasks'):
+        APP_CONFIG['tasks'] = []
+        
+    options = [(n, task['name']) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
+    if len(options) == 0:
+        return f'{BASE_PATH}/err?msg=There are no task to do.'
+    
+    selected_task = print_radiolist_menu(
+        title='Add task update',
+        text='Select task you want to add a note:',
+        options=options,
+    )
+    update_text = prompt('Note', validator=NoEmptyValidator())
+    
+    notes = APP_CONFIG['tasks'][selected_task].get('notes', [])
+    notes.append(f'[{datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}] {update_text}')
+    save_config()
+    
+    task_name = APP_CONFIG['tasks'][selected_task]['name']
+    return f'{BASE_PATH}/success?msg=Note added to "{task_name}".'
+
+@DevTool('/task_manager/:change_task_order')
+def _handle_change_task_order(menu_path: str) -> str:
+    if not APP_CONFIG.get('tasks'):
+        APP_CONFIG['tasks'] = []
+    
+    pending_tasks = [task for task in APP_CONFIG['tasks'] if not task['done']]
+    options = [(n, f'{n + 1}. {task["name"]}') for n, task in enumerate(pending_tasks)]
+    if len(options) <= 1:
+        return f'{BASE_PATH}/err?msg=There are not enougth task.'
+    
+    index_A = print_radiolist_menu(
+        title='Change task order',
+        text='Select task you want to move:',
+        options=options,
+    )
+    
+    n = 0
+    options = []
+    selected_task = APP_CONFIG['tasks'][index_A]
+    for task in pending_tasks:
+        if task['name'] != selected_task['name']:
+            options.append((n, f'{n + 1}. {task["name"]}'))
+            n += 1
+    options.append((n, f'{n + 1}. ...'))
+    
+    index_B = print_radiolist_menu(
+        title='Change task order',
+        text='Select task new position:',
+        options=options,
+    )
+    
+    APP_CONFIG['tasks'].pop(index_A)
+    APP_CONFIG['tasks'].insert(index_B, selected_task)
+    
+    save_config()
+    task_name = selected_task['name']
+    return f'{BASE_PATH}/success?msg=Task "{task_name}" moved to position {index_B + 1}.'
+
+@DevTool('/task_manager/:task_done')
+def _handle_task_done(menu_path: str) -> str:
+    if not APP_CONFIG.get('tasks'):
+        APP_CONFIG['tasks'] = []
+        
+    options = [(n, task['name']) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
+    if len(options) == 0:
+        return f'{BASE_PATH}/err?msg=There are no task to do.'
+    
+    selected_task = print_radiolist_menu(
+        title='Mark task as done',
+        text='Select task you want to finish:',
+        options=options,
+    )
+    
+    APP_CONFIG['tasks'][selected_task]['done'] = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+    save_config()
+    
+    return f'{BASE_PATH}/success?msg=Task succesfully closed.'
+
+@DevTool('/task_manager/:task_remove')
+def _handle_task_remove(menu_path: str) -> str:
+    if not APP_CONFIG.get('tasks'):
+        APP_CONFIG['tasks'] = []
+        
+    options = [(n, task['name']) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
+    if len(options) == 0:
+        return f'{BASE_PATH}/err?msg=There are no task to do.'
+    
+    selected_task = print_radiolist_menu(
+        title='Remove task',
+        text='Select task you want to remove:',
+        options=options,
+    )
+    
+    APP_CONFIG['tasks'].pop(selected_task)
+    save_config()
+    
+    return f'{BASE_PATH}/success?msg=Task succesfully removed.'
+
+# ========================================================================
+
 @DevTool('/admin/:add_password')
 def _handle_add_password(menu_path: str) -> str:
     name = prompt('Name')
     password = prompt('Password', clear=False, is_password=True)
     encrypted_pass = encode_PK(password)
     
-    aux_dict = APP_CONFIG.get('passwords')
-    if not aux_dict:
+    if not APP_CONFIG.get('passwords'):
         APP_CONFIG['passwords'] = {}
     
     APP_CONFIG['passwords'][name] = encrypted_pass
     save_config()
     
-    return BASE_PATH
+    return f'{BASE_PATH}/success?msg=Password "{name}" added.'
 
 @DevTool('/admin/:encode_file')
 def _handle_encode(menu_path: str) -> str:

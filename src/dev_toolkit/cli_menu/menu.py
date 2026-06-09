@@ -267,14 +267,34 @@ def _print_inescop_menu(menu_path: str) -> str:
 @DevTool('/admin')
 def _print_admin_menu(menu_path: str) -> str:
     options = [
+        (BASE_PATH + '/task_manager', 'Task manager.'),
         (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.'),
         (BASE_PATH + '/admin/:add_password', 'Add password.'),
-        (BASE_PATH + '/admin/:encode_file', 'Encode file.'),
+        (BASE_PATH + '/admin/:encode_file', 'Encode file.')
     ]
     
     result = print_radiolist_menu(
         _get_title_from_path(menu_path),
         'Choose a tool:',
+        options
+    )
+    
+    return result
+
+@DevTool('/task_manager')
+def _print_task_manager_menu(menu_path: str) -> str:
+    options = [
+        (BASE_PATH + f'/task_manager/:render_task_md', 'MarkDown view.'),
+        (BASE_PATH + f'/task_manager/:add_task', 'Add task.'),
+        (BASE_PATH + f'/task_manager/:add_note', 'Add note to task.'),
+        (BASE_PATH + f'/task_manager/:change_task_order', 'Change order.'),
+        (BASE_PATH + f'/task_manager/:task_done', 'Mark task as done.'),
+        (BASE_PATH + f'/task_manager/:task_remove', 'Remove task.')
+    ]
+    
+    result = print_radiolist_menu(
+        _get_title_from_path(menu_path),
+        'Choose an option:',
         options
     )
     

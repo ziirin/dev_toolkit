@@ -3,5 +3,5 @@
 /dist
 /config
 *pycache*
-/src/config.json
 /*.exe
+assets/config.json

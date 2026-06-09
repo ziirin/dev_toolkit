@@ -1,6 +1,7 @@
-from datetime import datetime
 from pathlib import Path
 from prompt_toolkit.validation import Validator, ValidationError
+
+from src.dev_toolkit.config.app_config import APP_CONFIG
 
 class NoEmptyValidator(Validator):
     def validate(self, doc) -> None:
@@ -56,4 +57,10 @@ class BoolValidator(NoEmptyValidator):
         if not doc.text.lower() in BoolValidator.TRUE_VALUES and \
            not doc.text.lower() in BoolValidator.FALSE_VALUES:
             raise ValidationError(message=f'"{doc.text}" is not a valid input.')
-        
+
+class TaskNameValidator(NoEmptyValidator):
+    def validate(self, doc):
+        super().validate(doc)
+        for task in APP_CONFIG.get('tasks', []):
+            if doc.text == task['name']:
+                raise ValidationError(message=f'Following task already exist: "{doc.text}".')
