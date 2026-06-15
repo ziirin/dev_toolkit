@@ -124,7 +124,7 @@ def _handle_save_sil(menu_path: str) -> str:
         
     result = BASE_PATH
     if success:
-        result += '/success?msg=Saved translations.'
+        result += '/success?msg=Translations saved.'
     else:
         result += f'/err?msg=Something went wrong when saving at least one project.'
         
@@ -381,6 +381,9 @@ def _handle_change_task_order(menu_path: str) -> str:
         options=options,
     )
     
+    if not index_A:
+        return BASE_PATH
+    
     n = 0
     options = []
     selected_task = APP_CONFIG['tasks'][index_A]
@@ -395,6 +398,9 @@ def _handle_change_task_order(menu_path: str) -> str:
         text='Select task new position:',
         options=options,
     )
+    
+    if not index_B:
+        return BASE_PATH
     
     APP_CONFIG['tasks'].pop(index_A)
     APP_CONFIG['tasks'].insert(index_B, selected_task)

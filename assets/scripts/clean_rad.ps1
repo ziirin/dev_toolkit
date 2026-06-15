@@ -27,6 +27,7 @@ $extensions = @(
     "*.tds",
     "*.tmp",
     "*.ild",
+    "*.pch",
     "*.local",
     "*.identcache",
     "*.stat",

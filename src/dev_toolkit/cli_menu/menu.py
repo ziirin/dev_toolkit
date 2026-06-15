@@ -77,7 +77,7 @@ def print_radiolist_menu(title: str, text: str,
         
         scrollable_menu = Window(
             content=radio_list.control,
-            height=D(max=5),
+            height=D(max=min(len(options), 10)),
             scroll_offsets=ScrollOffsets(top=1, bottom=1),
             dont_extend_height=False
         )
@@ -156,6 +156,7 @@ def _print_main_menu(menu_path: str) -> str | None:
         (BASE_PATH + '/rad', 'RAD Studio tools...'),
         (BASE_PATH + '/git', 'Git...'),
         (BASE_PATH + '/inescop', 'Inescop tools...'),
+        (BASE_PATH + '/task_manager', 'Task manager...'),
         (BASE_PATH + '/common_links', 'Common links...')
     ]
     
@@ -253,7 +254,8 @@ def _print_inescop_menu(menu_path: str) -> str:
         (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}{password_params}', 'Gespro.'),
         (BASE_PATH + f'/:run_shortcut?path={APP_PATHS.get("CREATE_INSTALLERS", "")}', 'Create installers.'),
         (BASE_PATH + f'/inescop/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup.'),
-        (BASE_PATH + '/inescop/:search_icons', 'Search Icons.')
+        (BASE_PATH + '/inescop/:search_icons', 'Search Icons.'),
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("RM_INKS_TMP_FILE")}', 'Remove InkScape tmp files.')
     ]
     
     result = print_radiolist_menu(
@@ -267,7 +269,6 @@ def _print_inescop_menu(menu_path: str) -> str:
 @DevTool('/admin')
 def _print_admin_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/task_manager', 'Task manager.'),
         (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.'),
         (BASE_PATH + '/admin/:add_password', 'Add password.'),
         (BASE_PATH + '/admin/:encode_file', 'Encode file.')

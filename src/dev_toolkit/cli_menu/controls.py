@@ -15,11 +15,11 @@ class CustomRadioList(RadioList):
         
         @kb.add('up')
         def _(event):
-            self._selected_index = max(0, self._selected_index - 1)
+            self._selected_index = (self._selected_index - 1) % len(self.values) # max(0, self._selected_index - 1)
             
         @kb.add('down')
         def _(event):
-            self._selected_index = min(len(self.values) - 1, self._selected_index + 1)
+            self._selected_index = (self._selected_index + 1) % len(self.values) # min(len(self.values) - 1, self._selected_index + 1)
             
         @kb.add('right')
         @kb.add('enter')
@@ -31,6 +31,20 @@ class CustomRadioList(RadioList):
         @kb.add('escape', eager=True)
         def _(event):
             event.app.exit(result=None)
+            
+        @kb.add('1')
+        @kb.add('2')
+        @kb.add('3')
+        @kb.add('4')
+        @kb.add('5')
+        @kb.add('6')
+        @kb.add('7')
+        @kb.add('8')
+        @kb.add('9')
+        def _(event):
+            selected_num = int(event.key_sequence[-1].key)
+            if selected_num < len(self.values):
+                event.app.exit(result=self.values[selected_num - 1][0])
         
         self.control.key_bindings = merge_key_bindings([self.control.key_bindings, kb])
         
