@@ -9,8 +9,15 @@ class NoEmptyValidator(Validator):
             raise ValidationError(message='Required value.')
 
 class NumberValidator(NoEmptyValidator):
+    def __init__(self, allow_empty: bool = False) -> None:
+        super().__init__()
+        self.allow_empty = allow_empty
+        
     def validate(self, doc) -> None:
-        if not str(doc.text).isnumeric():
+        doc_text_str = str(doc.text)
+        is_err = (doc_text_str != '' and not str(doc.text).isnumeric())
+        is_err |= (doc_text_str == '' and not self.allow_empty)
+        if is_err:
             raise ValidationError(message='Not a number.')
              
 class FileValidator(NoEmptyValidator):

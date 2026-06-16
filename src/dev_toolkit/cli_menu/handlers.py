@@ -219,7 +219,8 @@ def _handle_stash_bring_back(menu_path: str) -> str:
     for (i, stash) in enumerate(stashes):
         stash_options.append((
             'stash@{' + str(i) + '}',
-            stash[stash.find('}') + 3:]
+            stash[stash.find('}') + 3:],
+            None
         ))
     
     stash_selected = print_radiolist_menu(
@@ -324,7 +325,7 @@ def _handle_render_task_md(menu_path: str) -> str:
 @DevTool('/task_manager/:add_task')
 def _handle_add_task(menu_path: str) -> str:
     name = prompt('Name', validator=TaskNameValidator())
-    ticket = prompt('Ticket #', validator=NumberValidator() ,clear=False)
+    ticket = prompt('Ticket #', validator=NumberValidator(True) ,clear=False)
     description = prompt('Description', clear=False)
     
     if not APP_CONFIG.get('tasks'):
@@ -332,7 +333,7 @@ def _handle_add_task(menu_path: str) -> str:
     
     APP_CONFIG['tasks'].append({
         'name': name,
-        'ticket': ticket,
+        'ticket': int(ticket) if ticket != '' else None,
         'description': description,
         'notes': [],
         'addition_date': datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
@@ -347,7 +348,7 @@ def _handle_add_note(menu_path: str) -> str:
     if not APP_CONFIG.get('tasks'):
         APP_CONFIG['tasks'] = []
         
-    options = [(n, task['name']) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
+    options = [(n, task['name'], None) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
     if len(options) == 0:
         return f'{BASE_PATH}/err?msg=There are no task to do.'
     
@@ -370,8 +371,13 @@ def _handle_change_task_order(menu_path: str) -> str:
     if not APP_CONFIG.get('tasks'):
         APP_CONFIG['tasks'] = []
     
-    pending_tasks = [task for task in APP_CONFIG['tasks'] if not task['done']]
-    options = [(n, f'{n + 1}. {task["name"]}') for n, task in enumerate(pending_tasks)]
+    n_option = 1
+    options = []
+    for (n, task) in enumerate(APP_CONFIG['tasks']):
+        if not task['done']:
+            options.append((n, f'{n_option}. {task["name"]}', None))
+            n_option += 1
+    
     if len(options) <= 1:
         return f'{BASE_PATH}/err?msg=There are not enougth task.'
     
@@ -384,14 +390,15 @@ def _handle_change_task_order(menu_path: str) -> str:
     if not index_A:
         return BASE_PATH
     
-    n = 0
-    options = []
     selected_task = APP_CONFIG['tasks'][index_A]
-    for task in pending_tasks:
-        if task['name'] != selected_task['name']:
-            options.append((n, f'{n + 1}. {task["name"]}'))
-            n += 1
-    options.append((n, f'{n + 1}. ...'))
+    n_option = 1
+    options = []
+    for (n, task) in enumerate(APP_CONFIG['tasks']):
+        if not task['done'] and task['name'] != selected_task['name']:
+            options.append((n, f'{n_option}. {task["name"]}', None))
+            n_option += 1
+    options.append((n, f'{n_option}. ...'))
+    
     
     index_B = print_radiolist_menu(
         title='Change task order',
@@ -407,14 +414,14 @@ def _handle_change_task_order(menu_path: str) -> str:
     
     save_config()
     task_name = selected_task['name']
-    return f'{BASE_PATH}/success?msg=Task "{task_name}" moved to position {index_B + 1}.'
+    return f'{BASE_PATH}/success?msg=Task "{task_name}" moved.'
 
 @DevTool('/task_manager/:task_done')
 def _handle_task_done(menu_path: str) -> str:
     if not APP_CONFIG.get('tasks'):
         APP_CONFIG['tasks'] = []
         
-    options = [(n, task['name']) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
+    options = [(n, task['name'], None) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
     if len(options) == 0:
         return f'{BASE_PATH}/err?msg=There are no task to do.'
     
@@ -434,7 +441,7 @@ def _handle_task_remove(menu_path: str) -> str:
     if not APP_CONFIG.get('tasks'):
         APP_CONFIG['tasks'] = []
         
-    options = [(n, task['name']) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
+    options = [(n, task['name'], None) for n, task in enumerate(APP_CONFIG['tasks']) if not task['done']]
     if len(options) == 0:
         return f'{BASE_PATH}/err?msg=There are no task to do.'
     

@@ -29,7 +29,7 @@ def _get_title_from_path(menu_path: str) -> str:
     title = ' → '.join(title_array)
     return title
 
-def _filter_options(options: list[tuple[str, str]]) -> list[tuple[str, str]]:
+def _filter_options(options: list[tuple[str, str, bool]]) -> list[tuple[str, str]]:
     fx = (lambda opt: MENU_ROUTING.get(opt[0].split('?')[0], None))
     filtered_opts = list(filter(fx, options))
     
@@ -67,7 +67,7 @@ def _print_simple_msg(title:str, text: str) -> str:
     return app.run()
 
 def print_radiolist_menu(title: str, text: str,
-                          options: list[tuple[str, str]], filter_options: bool = False) -> str:
+                          options: list[tuple[str, str, bool]], filter_options: bool = False) -> str:
     result = None
     if filter_options:
         options = _filter_options(options)
@@ -152,12 +152,12 @@ def _print_err_menu(menu_path: str) -> str | None:
 @DevTool('')
 def _print_main_menu(menu_path: str) -> str | None:
     options = [
-        (BASE_PATH + '/tsilang', 'Tsilang tools...'),
-        (BASE_PATH + '/rad', 'RAD Studio tools...'),
-        (BASE_PATH + '/git', 'Git...'),
-        (BASE_PATH + '/inescop', 'Inescop tools...'),
-        (BASE_PATH + '/task_manager', 'Task manager...'),
-        (BASE_PATH + '/common_links', 'Common links...')
+        (BASE_PATH + '/tsilang', 'Tsilang tools', 'submenu'),
+        (BASE_PATH + '/rad', 'RAD Studio tools', 'submenu'),
+        (BASE_PATH + '/git', 'Git', 'submenu'),
+        (BASE_PATH + '/inescop', 'Inescop tools', 'submenu'),
+        (BASE_PATH + '/task_manager', 'Task manager', 'submenu'),
+        (BASE_PATH + '/common_links', 'Common links', 'submenu')
     ]
     
     return print_radiolist_menu(
@@ -169,11 +169,11 @@ def _print_main_menu(menu_path: str) -> str | None:
 @DevTool('/tsilang')
 def _print_tsilang_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/tsilang/:load', 'Load SILs to DFM.'),
-        (BASE_PATH + '/tsilang/:save', 'Save SILs from DFM.'),
-        (BASE_PATH + '/tsilang/:clear', 'Clear SILs.'),
-        (BASE_PATH + '/tsilang/:sil2csv', 'Convert SIL to CSV.'),
-        (BASE_PATH + '/tsilang/:csv2sil', 'Convert CSV to SIL.'),
+        (BASE_PATH + '/tsilang/:load', 'Load SILs to DFM', None),
+        (BASE_PATH + '/tsilang/:save', 'Save SILs from DFM', None),
+        (BASE_PATH + '/tsilang/:clear', 'Clear SILs.', None),
+        (BASE_PATH + '/tsilang/:sil2csv', 'Convert SIL to CSV', None),
+        (BASE_PATH + '/tsilang/:csv2sil', 'Convert CSV to SIL', None),
     ]
     
     title = _get_title_from_path(menu_path)
@@ -212,10 +212,10 @@ def _print_tsilang_menu(menu_path: str) -> str:
 @DevTool('/rad')
 def _print_rad_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/rad/:platform_changer?preset=debug', 'Platform changer: w32 Debug.'),
-        (BASE_PATH + '/rad/:platform_changer?preset=release', 'Platform changer: w64 Release.'),
-        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("KILL_RAD")}', 'Kill TwineCompile subprocesses.'),
-        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("CLEAN_RAD")}', 'Clean temporal files and folders.')
+        (BASE_PATH + '/rad/:platform_changer?preset=debug', 'Platform changer: w32 Debug', None),
+        (BASE_PATH + '/rad/:platform_changer?preset=release', 'Platform changer: w64 Release', None),
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("KILL_RAD")}', 'Kill TwineCompile subprocesses', None),
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("CLEAN_RAD")}', 'Clean temporal files and folders', None)
     ]
     
     title = _get_title_from_path(menu_path)
@@ -228,9 +228,9 @@ def _print_rad_menu(menu_path: str) -> str:
 @DevTool('/git')
 def _print_git_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/git/:stash_save', 'Stash changes.'),
-        (BASE_PATH + '/git/:stash_bring_back', 'Bring back changes.'),
-        (BASE_PATH + '/git/:discard', 'Discard changes.')
+        (BASE_PATH + '/git/:stash_save', 'Stash changes', None),
+        (BASE_PATH + '/git/:stash_bring_back', 'Bring back changes', None),
+        (BASE_PATH + '/git/:discard', 'Discard changes', 'warning')
     ]
     
     result = print_radiolist_menu(
@@ -250,12 +250,12 @@ def _print_inescop_menu(menu_path: str) -> str:
         password_params = f'&auto_type="{password}"&auto_enter=True'
     
     options = [
-        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}{password_params}', 'Solydoc.'),
-        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}{password_params}', 'Gespro.'),
-        (BASE_PATH + f'/:run_shortcut?path={APP_PATHS.get("CREATE_INSTALLERS", "")}', 'Create installers.'),
-        (BASE_PATH + f'/inescop/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup.'),
-        (BASE_PATH + '/inescop/:search_icons', 'Search Icons.'),
-        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("RM_INKS_TMP_FILE")}', 'Remove InkScape tmp files.')
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("SOLYDOC", "")}{password_params}', 'Solydoc', None),
+        (BASE_PATH + f'/:run_exe_detached?path={APP_PATHS.get("GESPRO", "")}{password_params}', 'Gespro', None),
+        (BASE_PATH + f'/:run_shortcut?path={APP_PATHS.get("CREATE_INSTALLERS", "")}', 'Create installers', None),
+        (BASE_PATH + f'/inescop/:backup?src_folder={APP_CONFIG.get("global", {}).get("main_src_folder", "")}', 'Create src folder backup', None),
+        (BASE_PATH + '/inescop/:search_icons', 'Search Icons.', None),
+        (BASE_PATH + f'/:run_ps_script?path={APP_PATHS.get("RM_INKS_TMP_FILE")}', 'Remove InkScape tmp files', None)
     ]
     
     result = print_radiolist_menu(
@@ -269,9 +269,9 @@ def _print_inescop_menu(menu_path: str) -> str:
 @DevTool('/admin')
 def _print_admin_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file.'),
-        (BASE_PATH + '/admin/:add_password', 'Add password.'),
-        (BASE_PATH + '/admin/:encode_file', 'Encode file.')
+        (BASE_PATH + '/inescop/:search_icons?update=true', 'Regenerate search icons file', False),
+        (BASE_PATH + '/admin/:add_password', 'Add password', 'warning'),
+        (BASE_PATH + '/admin/:encode_file', 'Encode file', 'warning')
     ]
     
     result = print_radiolist_menu(
@@ -285,12 +285,12 @@ def _print_admin_menu(menu_path: str) -> str:
 @DevTool('/task_manager')
 def _print_task_manager_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + f'/task_manager/:render_task_md', 'MarkDown view.'),
-        (BASE_PATH + f'/task_manager/:add_task', 'Add task.'),
-        (BASE_PATH + f'/task_manager/:add_note', 'Add note to task.'),
-        (BASE_PATH + f'/task_manager/:change_task_order', 'Change order.'),
-        (BASE_PATH + f'/task_manager/:task_done', 'Mark task as done.'),
-        (BASE_PATH + f'/task_manager/:task_remove', 'Remove task.')
+        (BASE_PATH + f'/task_manager/:render_task_md', 'MarkDown view', None),
+        (BASE_PATH + f'/task_manager/:add_task', 'Add task', None),
+        (BASE_PATH + f'/task_manager/:add_note', 'Add note to task', None),
+        (BASE_PATH + f'/task_manager/:change_task_order', 'Change order', 'submenu'),
+        (BASE_PATH + f'/task_manager/:task_done', 'Mark task as done', 'submenu'),
+        (BASE_PATH + f'/task_manager/:task_remove', 'Remove task', 'warning')
     ]
     
     result = print_radiolist_menu(
@@ -304,12 +304,12 @@ def _print_task_manager_menu(menu_path: str) -> str:
 @DevTool('/common_links')
 def _print_common_links_menu(menu_path: str) -> str:
     options = [
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("ICAD_WORKSPACE", "")}', 'ICad Workspace.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("TICKET_PLATFORM", "")}', 'Ticket platform.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Calculahora®.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'AI: ChatGPT.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("GEMINI", "")}', 'AI: Gemini.'),
-        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'AI: Claude.')
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("ICAD_WORKSPACE", "")}', 'ICad Workspace', None),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("TICKET_PLATFORM", "")}', 'Ticket platform', None),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CALCULAHORA", "")}', 'Calculahora®', None),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CHAT_GPT", "")}', 'AI: ChatGPT', None),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("GEMINI", "")}', 'AI: Gemini', None),
+        (BASE_PATH + f'/:open_browser?url={APP_PATHS.get("CLAUDE", "")}', 'AI: Claude', None)
     ]
     
     result = print_radiolist_menu(

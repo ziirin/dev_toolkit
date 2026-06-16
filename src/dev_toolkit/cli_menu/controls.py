@@ -3,12 +3,16 @@ from prompt_toolkit.widgets import RadioList
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.data_structures import Point
 
+from src.dev_toolkit.misc.cli_style import ONE_ATOM_PALETTE
+
 class CustomRadioList(RadioList):
     def __init__(self, values, default = None):
-        super().__init__(values, default)
+        super().__init__([(val, lb) for (val, lb, _) in values], default)
+        self.custom_values = values
         self.open_char = ''
         self.close_char = ''
-        self.selected_char = '→'
+        self.selected_char = '∙' # '→' # '∙'
+        self.selected_warning_char = '!'
         self.unselected_char = ' '
         
         kb = KeyBindings()
@@ -43,7 +47,7 @@ class CustomRadioList(RadioList):
         @kb.add('9')
         def _(event):
             selected_num = int(event.key_sequence[-1].key)
-            if selected_num < len(self.values):
+            if selected_num <= len(self.values):
                 event.app.exit(result=self.values[selected_num - 1][0])
         
         self.control.key_bindings = merge_key_bindings([self.control.key_bindings, kb])
@@ -56,7 +60,7 @@ class CustomRadioList(RadioList):
         
     def _get_text_fragments(self):
         result = []
-        for i, (_, label) in enumerate(self.values):
+        for i, (_, label, value_type) in enumerate(self.custom_values):
             selected = (i == self._selected_index)
             
             style = 'class:radio-button'
@@ -65,13 +69,17 @@ class CustomRadioList(RadioList):
                 
             result.append((style, self.open_char))
             if selected:
-                result.append((style, self.selected_char))
+                if value_type == 'warning':
+                    result.append((f'{ONE_ATOM_PALETTE["red"]} bold', self.selected_warning_char))
+                else:
+                    result.append((style, self.selected_char))
             else:
-                result.append((style, self.unselected_char))
+                result.append((ONE_ATOM_PALETTE['muted_text'], f'{i + 1}'))
             result.append((style, self.close_char))
-            
             result.append(('', ' '))
             result.append(('', str(label)))
+            if value_type == 'submenu':
+                result.append((ONE_ATOM_PALETTE['muted_text'], ' ▸'))
             result.append(('', '\n'))
         
         result.pop()
