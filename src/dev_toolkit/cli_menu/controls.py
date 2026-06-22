@@ -73,11 +73,13 @@ class CustomRadioList(RadioList):
                     result.append((f'{ONE_ATOM_PALETTE["red"]} bold', self.selected_warning_char))
                 else:
                     result.append((style, self.selected_char))
-            else:
+            elif i < 9:
                 result.append((ONE_ATOM_PALETTE['muted_text'], f'{i + 1}'))
+            else:
+                result.append(('', self.unselected_char))
             result.append((style, self.close_char))
             result.append(('', ' '))
-            result.append(('', str(label)))
+            result.append((ONE_ATOM_PALETTE['warning_text'] if value_type == 'warning' else '', str(label)))
             if value_type == 'submenu':
                 result.append((ONE_ATOM_PALETTE['muted_text'], ' ▸'))
             result.append(('', '\n'))

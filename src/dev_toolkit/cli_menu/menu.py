@@ -2,11 +2,11 @@ from pathlib import Path
 
 from prompt_toolkit.validation import Validator
 from prompt_toolkit.widgets import Box, Button, Dialog, Label
-from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, Window
+from prompt_toolkit.layout import D, FormattedTextControl, HSplit, Layout, ScrollOffsets, VSplit, Window, WindowAlign
 from prompt_toolkit.layout.processors import PasswordProcessor
 from prompt_toolkit.application import Application, get_app
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.shortcuts import (PromptSession, input_dialog,
+from prompt_toolkit.shortcuts import (input_dialog,
                                       clear as _clear,
                                       prompt as _prompt)
 
@@ -14,8 +14,9 @@ from src.dev_toolkit.cli_menu.controls import CustomRadioList
 from src.dev_toolkit.cli_menu.validators import FileOrFolderValidator
 from src.dev_toolkit.cli_menu.routing import (DevTool, MENU_ROUTING, BASE_PATH)
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS, decode_PK
-from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME
+from src.dev_toolkit.misc.cli_style import ONE_ATOM_THEME, ONE_ATOM_PALETTE
 from src.dev_toolkit.misc.util import get_args_from_path
+from src.dev_toolkit.misc.launcher import run_ps_command
 
 # ========================================================================
 
@@ -67,13 +68,15 @@ def _print_simple_msg(title:str, text: str) -> str:
     return app.run()
 
 def print_radiolist_menu(title: str, text: str,
-                          options: list[tuple[str, str, bool]], filter_options: bool = False) -> str:
+                         options: list[tuple[str, str, bool]],
+                         right_side_info: str | None = None,
+                         filter_options: bool = False) -> str:
     result = None
     if filter_options:
         options = _filter_options(options)
     if len(options) > 0:
         radio_list = CustomRadioList(values=options)
-        exit_text = 'Exit' if title == 'DevToolkit' else 'Back'
+        is_root = (title == 'DevToolkit')
         
         scrollable_menu = Window(
             content=radio_list.control,
@@ -82,15 +85,26 @@ def print_radiolist_menu(title: str, text: str,
             dont_extend_height=False
         )
         
+        dialog_content = [
+            Box(scrollable_menu, padding=1),
+        ]
+        
+        if right_side_info:
+            dialog_content.append(
+                Label(
+                    text=right_side_info,
+                    style=ONE_ATOM_PALETTE['muted_text'],
+                    align=WindowAlign.RIGHT))
+        
         dialog = Dialog(
             title=title,
             body=HSplit([
                 Label(text=text, dont_extend_height=True),
-                Box(scrollable_menu, padding=1)
+                VSplit(dialog_content, padding=5)
             ]),
             buttons=[
                 Button(text="Ok", handler=lambda: get_app().exit(result=radio_list.current_value)),
-                Button(text=exit_text, handler=lambda: get_app().exit(result=None))
+                Button(text='Exit' if is_root else 'Back', handler=lambda: get_app().exit(result=None))
             ],
             with_background=True
         )
@@ -230,13 +244,19 @@ def _print_git_menu(menu_path: str) -> str:
     options = [
         (BASE_PATH + '/git/:stash_save', 'Stash changes', None),
         (BASE_PATH + '/git/:stash_bring_back', 'Bring back changes', None),
-        (BASE_PATH + '/git/:discard', 'Discard changes', 'warning')
+        (BASE_PATH + '/git/:discard', 'Discard changes', 'warning'),
+        (BASE_PATH + '/git/:force_develop', 'Force move to develop', 'warning')
     ]
+    
+    repo_path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
+    cmd = f'git -C "{repo_path}" branch --show-current'
+    cur_branch_res, cur_branch = run_ps_command(cmd.split(' '))
     
     result = print_radiolist_menu(
         _get_title_from_path(menu_path),
         'Choose a tool:',
-        options
+        options,
+        f'Current branch: {cur_branch}' if cur_branch_res else ''
     )
     
     return result
@@ -326,21 +346,26 @@ def prompt(msg: str, validator: Validator | None = None,
            placeholder: str | None = None,
            default: str | None = None,
            is_password: bool | None = None,
+           rprompt: str | None = None,
+           bottom_toolbar: str | None = None,
            clear = True) -> str:
     if clear:
         _clear()
     input_processors = []
     if is_password:
         input_processors.append(PasswordProcessor(char='•'))
-        
-    session = PromptSession(input_processors=input_processors)
-    return session.prompt(f'> {msg}: ',
-                          validator=validator,
-                          validate_while_typing=(validator != None),
-                          placeholder=placeholder,
-                          default=default if default else '',
-                          is_password=is_password,
-                          style=ONE_ATOM_THEME)
+
+    return _prompt(f'> {msg}: ',
+                   input_processors=input_processors,
+                   wrap_lines=True,
+                   validator=validator,
+                   validate_while_typing=(validator != None),
+                   placeholder=placeholder,
+                   default=default if default else '',
+                   is_password=is_password,
+                   rprompt=rprompt,
+                   bottom_toolbar=bottom_toolbar,
+                   style=ONE_ATOM_THEME)
 
 def resolve_path(menu_path: str = BASE_PATH) -> str | None:
     if menu_path.endswith('/'):

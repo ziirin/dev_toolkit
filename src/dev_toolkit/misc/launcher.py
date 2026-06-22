@@ -30,7 +30,7 @@ def run_ps_script(script_path: str) -> bool:
     except:
         return False
     
-def run_ps_command(command: list[str]) -> bool:
+def run_ps_command(command: list[str]) -> list[bool, str | None]:
     try:
         if command:
             process = subprocess.Popen(
@@ -41,14 +41,17 @@ def run_ps_command(command: list[str]) -> bool:
                 bufsize=1
             )
             
+            ret_str = ''
             for line in process.stdout:
+                ret_str += line.strip()
                 print(f'[PS1]: {line.strip()}')
+                
             process.wait()
-            return (process.returncode == 0)
+            return (process.returncode == 0, ret_str)
         else:
-            return False
+            return (False, None)
     except:
-        return False
+        return (False, None)
     
 def run_bat_script(script_path: str) -> bool:
     try:

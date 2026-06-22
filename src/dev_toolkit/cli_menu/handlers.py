@@ -269,6 +269,26 @@ def _handle_discard(menu_path: str) -> str:
     
     return BASE_PATH    
 
+@DevTool('/git/:force_develop')
+def _handle_force_develop(menu_path: str) -> str:
+    confirmRes = prompt('All changes will be discarted and switched to develop branch', validator=BoolValidator(), placeholder='(y/n)')
+    
+    if confirmRes in BoolValidator.TRUE_VALUES:
+        repo_path = APP_CONFIG.get('global', {}).get('main_src_folder', '')
+        
+        cmd = f'git -C "{repo_path}" restore .'
+        run_ps_command(cmd.split(' '))
+        
+        cmd = f'git -C "{repo_path}" clean -fd'
+        run_ps_command(cmd.split(' '))
+        
+        cmd = f'git -C "{repo_path}" switch develop'
+        run_ps_command(cmd.split(' '))
+        
+        return f'{BASE_PATH}/success?msg=You are now on develop branch.'
+    
+    return BASE_PATH    
+
 # ========================================================================
 
 @DevTool('/inescop/:search_icons')
@@ -397,7 +417,7 @@ def _handle_change_task_order(menu_path: str) -> str:
         if not task['done'] and task['name'] != selected_task['name']:
             options.append((n, f'{n_option}. {task["name"]}', None))
             n_option += 1
-    options.append((n, f'{n_option}. ...'))
+    options.append((n, f'{n_option}. ...', None))
     
     
     index_B = print_radiolist_menu(
@@ -524,12 +544,14 @@ def _handle_run_exe_detached(menu_path: str) -> str:
     if run_exe_detached(path):
         result = BASE_PATH
         if auto_type:
-            import pyautogui
+            # import pyautogui
+            import keyboard
             import time
-            time.sleep(1.5)
-            pyautogui.write(auto_type)
+            time.sleep(2)
+            # pyautogui.write(auto_type)
+            keyboard.write(auto_type)
             if auto_enter:
-                pyautogui.press('enter')
+                keyboard.send('enter')
     
     else:
         result = f'{BASE_PATH}/err?msg=Cannout launch "{path}".'

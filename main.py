@@ -1,5 +1,7 @@
 import argparse
 
+from prompt_toolkit.shortcuts import clear
+
 from src.dev_toolkit.cli_menu import menu
 from src.dev_toolkit.config.app_config import load_config
 
@@ -28,3 +30,7 @@ if __name__ == '__main__':
     next_path = args.init_path
     while next_path:
         next_path = menu.resolve_path(next_path)
+
+    # --
+    # Clear before close
+    clear()

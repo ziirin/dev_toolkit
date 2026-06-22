@@ -5,6 +5,7 @@ from prompt_toolkit.styles import Style
 ONE_ATOM_PALETTE = {
     'background': '#282c34',
     'normal_text': '#abb2bf',
+    'warning_text': "#c2a9ad",
     'muted_text': "#4d535e",
     'cyan': '#56b6c2',
     'green': '#98c379',

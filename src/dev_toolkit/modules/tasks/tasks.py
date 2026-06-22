@@ -24,6 +24,6 @@ def render_task_md(tasks: list[dict]) -> str:
     md_content += '\n---\n'
     md_content += '## Completed tasks\n'
     for task in done_tasks:
-        md_content += f'* *[{task["done"]}] {task["name"]}*'
+        md_content += f'* *[{task["done"]}] {task["name"]}*\n'
     
     return md_content
