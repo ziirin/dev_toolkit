@@ -29,7 +29,6 @@ APP_CONFIG = {
     'passwords': {
     },
     'tasks': [
-        
     ]
 }
 
@@ -42,7 +41,6 @@ APP_PATHS = {
     'SOLYDOC': str(Path('C:/BDINESCOP/Programas/SOLYDOC/solydoc.exe')),
     'GESPRO': str(Path('C:/BDINESCOP/Programas/GESPRO/GestionProyectos.exe')),
     'CREATE_INSTALLERS': str(BASE_DIR / 'assets' / 'scripts' / 'create_installers.lnk'),
-    'TASKS_MD_FILE': str(BASE_DIR / 'assets' / 'tasks.md'),
     'ICAD_WORKSPACE': 'https://icadworkspace.com/es/inescop/',
     'TICKET_PLATFORM': 'https://tickets.inescop.es/scp/index.php',
     'CALCULAHORA': 'https://tickets.inescop.es/horas.html',

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from prompt_toolkit.validation import Validator
 from prompt_toolkit.widgets import Box, Button, Dialog, Label
-from prompt_toolkit.layout import D, FormattedTextControl, HSplit, Layout, ScrollOffsets, VSplit, Window, WindowAlign
+from prompt_toolkit.layout import D, HSplit, Layout, ScrollOffsets, VSplit, Window, WindowAlign
 from prompt_toolkit.layout.processors import PasswordProcessor
 from prompt_toolkit.application import Application, get_app
 from prompt_toolkit.key_binding import KeyBindings

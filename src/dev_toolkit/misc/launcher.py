@@ -3,9 +3,12 @@ import subprocess
 import webbrowser
 from pathlib import Path
 
-def open_url(url: str) -> bool:
+def open_url(url: str, is_uri: bool = False) -> bool:
     try:
-        webbrowser.open(url)
+        _url = url
+        if is_uri:
+            _url = Path(_url)
+        webbrowser.open(_url)
     except:
         return False
     return True
