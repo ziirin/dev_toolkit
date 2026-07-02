@@ -66,8 +66,15 @@ class BoolValidator(NoEmptyValidator):
             raise ValidationError(message=f'"{doc.text}" is not a valid input.')
 
 class TaskNameValidator(NoEmptyValidator):
-    def validate(self, doc):
+    def validate(self, doc) -> None:
         super().validate(doc)
         for task in APP_CONFIG.get('tasks', []):
             if doc.text == task['name']:
                 raise ValidationError(message=f'Following task already exist: "{doc.text}".')
+            
+class TaskRequiredByValidator(NoEmptyValidator):
+    VALID_VALUES = ['Inescop', 'Red21', 'NewLast', 'Other']
+    def validate(self, doc)  -> None:
+        super().validate(doc)
+        if doc.text not in self.VALID_VALUES:
+            raise ValidationError(message=f'Value "{doc.text}" is not valid.')

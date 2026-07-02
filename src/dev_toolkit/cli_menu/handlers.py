@@ -5,7 +5,7 @@ from uuid import uuid4
 from pathlib import Path
 from threading import Timer
 
-from src.dev_toolkit.cli_menu.validators import BoolValidator, FileValidator, NoEmptyValidator, NotFileOrFolderValidator, NumberValidator, TaskNameValidator
+from src.dev_toolkit.cli_menu.validators import BoolValidator, FileValidator, NoEmptyValidator, NotFileOrFolderValidator, NumberValidator, TaskNameValidator, TaskRequiredByValidator
 from src.dev_toolkit.cli_menu.routing import DevTool
 from src.dev_toolkit.cli_menu.menu import BASE_PATH, print_radiolist_menu, prompt
 from src.dev_toolkit.config.app_config import APP_CONFIG, APP_PATHS, encode_PK, save_config
@@ -332,7 +332,7 @@ def _handle_render_task_md(menu_path: str) -> str:
     if not APP_CONFIG.get('tasks'):
         APP_CONFIG['tasks'] = []
     
-    filename = Path(f'~{uuid4()}.html').absolute()
+    filename = (Path(APP_PATHS.get('BASE_DIR', '')) / f'~{uuid4()}.html').absolute()
     md_content = tasks_to_md(APP_CONFIG.get('tasks', []))
     html = render_task_md(md_content)
     with open(filename, 'w', encoding='utf-8') as md_file:
@@ -346,7 +346,8 @@ def _handle_render_task_md(menu_path: str) -> str:
 @DevTool('/task_manager/:add_task')
 def _handle_add_task(menu_path: str) -> str:
     name = prompt('Name', validator=TaskNameValidator())
-    ticket = prompt('Ticket #', validator=NumberValidator(True) ,clear=False)
+    ticket = prompt('Ticket #', validator=NumberValidator(True), clear=False)
+    required_by = prompt('Required by', validator=TaskRequiredByValidator(), clear=False)
     description = prompt('Description', clear=False)
     
     if not APP_CONFIG.get('tasks'):
@@ -355,6 +356,7 @@ def _handle_add_task(menu_path: str) -> str:
     APP_CONFIG['tasks'].append({
         'name': name,
         'ticket': int(ticket) if ticket != '' else None,
+        'required_by': required_by,
         'description': description,
         'notes': [],
         'addition_date': datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
@@ -408,7 +410,7 @@ def _handle_change_task_order(menu_path: str) -> str:
         options=options,
     )
     
-    if not index_A:
+    if index_A == None:
         return BASE_PATH
     
     selected_task = APP_CONFIG['tasks'][index_A]
@@ -427,7 +429,7 @@ def _handle_change_task_order(menu_path: str) -> str:
         options=options,
     )
     
-    if not index_B:
+    if index_B == None:
         return BASE_PATH
     
     APP_CONFIG['tasks'].pop(index_A)

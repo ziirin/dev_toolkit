@@ -1,0 +1,121 @@
+{
+  "close_after_success": false,
+  "close_after_err": false,
+  "global": {
+    "main_src_folder": "c:/fuentes/nucleo",
+    "backup_folder": "d:/backup",
+    "icons_folder": "//backup-fa/FA/Iconos"
+  },
+  "passwords": {
+    "inescop": "gAAAAABqMqIiGvywEFLULczjN2-14t5773IotgoJf_5Cv5-ypW4w5me-5nKLUKT5G4ZET-oOghF2Ia5RPejN_JZBZTrZw7H5jA=="
+  },
+  "tasks": [
+    {
+      "name": "Exportar vistas para UxLab",
+      "ticket": 6077,
+      "required_by": "Inescop",
+      "description": "Exportar cada una de las vistas ortogonales del editor de POS y cada una de las vistas de perspectiva disponibles en el menú lateral del programa (ver correo) como imágenes para ser utilizadas en informes.",
+      "notes": [],
+      "addition_date": "2026/06/08 16:31:45",
+      "done": "2026/06/15 15:38:43"
+    },
+    {
+      "name": "Error al crear caña usando curva importada",
+      "ticket": 6194,
+      "required_by": "NewLast",
+      "description": "En el editor de caña, si se utiliza una curva personalizada para crear la caña, no parece estar haciendo efecto.",
+      "notes": [],
+      "addition_date": "2026/06/17 09:10:31",
+      "done": "2026/06/22 11:28:43"
+    },
+    {
+      "name": "Visualización de aristas durante la edición de modificador de jaula",
+      "ticket": 6226,
+      "required_by": "NewLast",
+      "description": "Al editar la malla del deformador de jaula, se desplazan solo los vértices y no las aristas has que termina la edición. Prestar atención al funcionamiento con Ctrl + flechas",
+      "notes": [],
+      "addition_date": "2026/07/02 09:42:36",
+      "done": ""
+    },
+    {
+      "name": "Rotación de curva en sentido opuesto al mouse",
+      "ticket": 6197,
+      "required_by": "NewLast",
+      "description": "Añadir deformador de tipo curva y utilizar curva de talón. Al editar la curva e intentar rotarla con ctrl + mouse en la vista XZ, la curva se mueve en sentido opuesto al mouse. Esto pasa en la versión 2026_604, en la versión 2025_320 parece funcionar correctamente.",
+      "notes": [],
+      "addition_date": "2026/06/22 11:45:13",
+      "done": ""
+    },
+    {
+      "name": "Añadir traducción al portugués",
+      "ticket": 6234,
+      "required_by": "Red21",
+      "description": "Implementar traducción al portugués. Los documentos recibidos solo contienen la columna de dicho idioma.",
+      "notes": [],
+      "addition_date": "2026/07/02 09:53:47",
+      "done": ""
+    },
+    {
+      "name": "Zona constante no hace efecto en escalado mediante curvas",
+      "ticket": 6195,
+      "required_by": "NewLast",
+      "description": "Usar el escalado mediante curvas y añadir una zona constante (Max. curve en el vídeo). Parece que la zona constante no se está manteniendo.",
+      "notes": [
+        "[23/06/2026 12:52:42] Parece que funciona bien en jsalas.lst utilizando una curva aplanada resultante de escalar jsalas.lst en ancho 15mm. Le pido a Alfredo el mismo archivo DXF que utiliza él en el vídeo ya que la horma es last_8.lst"
+      ],
+      "addition_date": "2026/06/22 11:33:14",
+      "done": ""
+    },
+    {
+      "name": "Menú hamburguesa",
+      "ticket": null,
+      "required_by": "Inescop",
+      "description": "Añadir menú tipo hamurguesa a 3D+ e incluir dentro todos el acceso rápido a todos los editores.",
+      "notes": [],
+      "addition_date": "2026/06/15 16:36:53",
+      "done": ""
+    },
+    {
+      "name": "Medidas manuales desde punta y sobre empeine",
+      "ticket": 6077,
+      "required_by": "Inescop",
+      "description": "Las medidas de alto empeine y bajo empeine se deben de poder hacer desde arriba para que así sean compatibles con los pies, esto está al revés y es un calvario intentar hacer comparativas con los pies. Esto se puede incluir en las medidas manuales como una nueva forma de medir. Añadir la opción de Origen=Punto superior de dedos. Esto  haría que la distancia de la medida manual escalasse sobre el empeine.",
+      "notes": [],
+      "addition_date": "2026/06/08 15:34:44",
+      "done": ""
+    },
+    {
+      "name": "Medida de tobillo",
+      "ticket": 6077,
+      "required_by": "Inescop",
+      "description": "La medida de tobillo como hemos implementado en el pie se podría implementar en manuales regulando Z.",
+      "notes": [
+        "[08/06/2026 15:47:48] Desconozco la medida a la que se refiere. Aclaración: La medida consiste en un plano simple que corta la horma a una altura determinada por un porcentaje relativo entre el punto más bajo y más alto de la horma. Con una torsión e inclinación determinada."
+      ],
+      "addition_date": "2026/06/08 15:46:53",
+      "done": ""
+    },
+    {
+      "name": "Correcciones en Largo útil",
+      "ticket": 6077,
+      "required_by": "Inescop",
+      "description": "Resolver largo útil (largo de dedos mejor o largo del pie) para sistema UK y USA, nos están entrando cosas de UK tenemos previsión de muchas más.",
+      "notes": [
+        "[08/06/2026 16:42:51] Pausado. Necesito que me paséis la definición matemática para poder implementarla."
+      ],
+      "addition_date": "2026/06/08 16:40:58",
+      "done": ""
+    },
+    {
+      "name": "Errores detectados en medidas manuales",
+      "ticket": 6077,
+      "required_by": "Inescop",
+      "description": "En medidas manuales: revisar cosas que faltan como ver propias y automáticas prioritarias. Controles de “ver todo” y algunos errores detectados.",
+      "notes": [
+        "[08/06/2026 16:43:34] Pausado. Especificar los errores detectados y características faltantes"
+      ],
+      "addition_date": "2026/06/08 16:41:34",
+      "done": ""
+    }
+  ]
+}

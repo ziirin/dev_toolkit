@@ -33,11 +33,13 @@ APP_CONFIG = {
 }
 
 APP_PATHS = {
+    'BASE_DIR': str(BASE_DIR),
     'KILL_RAD': str(BASE_DIR / 'assets' / 'scripts' / 'kill_rad.ps1'),
     'CLEAN_RAD': str(BASE_DIR / 'assets' / 'scripts' / 'clean_rad.ps1'),
     'LOAD_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'load_sils.bat'),
     'SAVE_SILS': str(BASE_DIR / 'assets' / 'scripts' / 'save_sils.exe'),
     'RM_INKS_TMP_FILE': str(BASE_DIR / 'assets' / 'scripts' / 'rm_inks_tmp_file.ps1'),
+    'TASK_TEMPLATE': str(BASE_DIR / 'assets' / 'task_report.template.html'),
     'SOLYDOC': str(Path('C:/BDINESCOP/Programas/SOLYDOC/solydoc.exe')),
     'GESPRO': str(Path('C:/BDINESCOP/Programas/GESPRO/GestionProyectos.exe')),
     'CREATE_INSTALLERS': str(BASE_DIR / 'assets' / 'scripts' / 'create_installers.lnk'),
